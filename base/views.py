@@ -120,11 +120,17 @@ def room(request, pk):
         return redirect('room',pk= room.id)
     
      # Retrieve messages with associated media
-    messages_with_media = Message.objects.filter(room=room, media__isnull=False)
+  #  messages_with_media = Message.objects.filter(room=room, media__isnull=False)
     
     context = {'room': room, 'room_messages':room_messages,
-                'participants':participants, 'messages_with_media': messages_with_media}
+                'participants':participants}
     return render(request,'base/room.html',context)
+
+# room messages:
+
+
+  #  messages_with_media = Message.objects.filter(room=room, media__isnull=False)
+
 
 # profile view
 @login_required(login_url='login')

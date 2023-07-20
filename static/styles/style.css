@@ -1042,15 +1042,18 @@ a {
 .room__author:hover {
   text-decoration: underline;
 }
+.room__details {
+  font-size: small;
+}
 
 .room__topics {
-  padding: 0.5rem 1.5rem;
+  padding: 0.3rem 1rem;
   background: var(--color-dark-light);
   color: var(--color-light);
   display: inline-block;
-  font-size: 1.4rem;
+  font-size: 1rem;
   border-radius: 1.5rem;
-  margin: 1rem 0;
+  margin: 0.5rem 0;
 }
 
 .room__conversation {
@@ -1070,7 +1073,7 @@ a {
   border-radius: 0.7rem;
   overflow-y: auto;
   height: 85%;
-  margin-top: 21vh;
+  margin-top: 20vh;
   padding: 0 2rem 4rem 2rem;
 }
 
@@ -1087,7 +1090,7 @@ a {
 .thread-right {
   border-right: 2px solid var(--color-error);
   background-color: #0a2510;
-  margin: 0.5rem;
+  margin: 0.5rem 0;
   padding: 0rem 0.5rem;
   border-radius: 10px;
 }
@@ -1169,14 +1172,30 @@ a {
   /* Additional styling properties */
 }
 
+.msg_text{
+ 
+  word-wrap: break-word;
 
+}
+.pdf-bubble{
 
+  word-wrap: break-word;
+}
+.pdf-bubble a{
+
+  word-wrap: break-word;
+}
 
 .msg_img{
   max-width: 100%;
+  
   height: auto;
   width: 50%; /* Adjust as needed */
   height: auto; /* Adjust as needed */
+}
+
+.msg_img img{
+max-height: 30rem;
 }
 
 .msg_video {
@@ -1187,6 +1206,10 @@ a {
   height: auto;
   width: 50%;
   height: auto;
+ 
+}
+.msg_video video{
+  max-height: 30rem;
 }
 
 .msg_video video {
@@ -1229,7 +1252,7 @@ a {
 
 
 .submit-button {
- 
+ margin-top: 0.3rem;
   border: 0;
   outline: 0;
   cursor: pointer;
@@ -1274,6 +1297,7 @@ a {
   padding: 1.2rem;
   font-size: 1.4rem;
   font-weight: 500;
+
   position: relative;
 }
 

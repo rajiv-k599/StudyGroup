@@ -103,11 +103,13 @@
                 </form>
                </div>
               </div>
+              <span class="room__topics">{{room.topic}}</span>
               <div class="room__details scroll">
+               
                 {{room.description}}
              
               </div>
-              <span class="room__topics">{{room.topic}}</span>
+             
             </div>
             <div class="room__conversation">
               <div class="threads scroll" id="message-box">
@@ -130,8 +132,8 @@
                       <span class="thread__date" style="font-size: xx-small; padding-top: 0.8rem;">{{message.created|timesince}} ago</span>
                       <a href="{% url 'user-profile' message.user.id %}" class="thread__authorInfo">
                         <span>@{{message.user.username}}</span>
-                        <div class="avatar avatar--small">
-                          <img src="https://randomuser.me/api/portraits/men/37.jpg" />
+                        <div class="avatar avatar--small" id="avatar-{{ message.user.username }}">
+                          <img src="{{message.user.avatar.url}}" />
                         </div>    
                       </a>
                    </div>
@@ -175,7 +177,7 @@
                   <div class="thread__top">
                     <div class="thread__author">
                       <a href="{% url 'user-profile' message.user.id %}" class="thread__authorInfo">
-                        <div class="avatar avatar--small">
+                        <div class="avatar avatar--small" id="avatar-{{ message.user.username }}">
                           <img src="{{message.user.avatar.url}}" style="height: 1.8rem; width:1.8rem;"/>
                         </div>
                         <span>@{{message.user.username}}</span>
@@ -203,12 +205,12 @@
                    {% for media in message.media_set.all %}
                    {% if media %}
                       {% if media.media_type == 'PDF' %}
-                      <div class="pdf-bubble">
-                        <p>PDF File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                      <div>
+                        <p class="pdf-bubble">PDF File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
                     </div>
             
                       {% elif media.media_type == 'DOC' %}
-                      <p>PDF File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                      <p class="pdf-bubble">PDF File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
                       {% elif media.media_type == 'Image' %}
                       <div class="msg_img">
                         <img src="{{ media.media_path.url }}" alt="{{ media.file_name }}" >
@@ -220,7 +222,7 @@
                         
                       {% else %}
                       <div>
-                        <p>Unsupported file type:  <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                        <p class="pdf-bubble">Unsupported file type:  <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
                       </div>
                      {% endif %} 
                    {% endif %}
@@ -241,15 +243,15 @@
               {% csrf_token %}
               <div class="send_message">
                 <div class="text_message">
-                  <input class="message-input" name="body" placeholder="Write your message here..." />
+                  <input class="message-input" id="chat-message-input" name="body" placeholder="Write your message here..." />
                 </div>
                
                 <div class="file_upload">
                   <input type="file" name="file" id="upload" hidden/>
-                  <label for="upload">Choose file</label>
+                  <label for="upload" style="padding: 0.5rem; margin-top: 0.5rem;"><i class="fa fa-paperclip" aria-hidden="true" style="font-size:30px;"></i></label>
                 </div>
               <div>
-                <input class="submit-button " type="submit" value="Send">
+                <button class="submit-button" id="chat-message-submit" type="submit" ><i class="fa fa-paper-plane" aria-hidden="true"></i> </button>
               </div>
                
               
@@ -271,19 +273,261 @@
           <div class="participants__list scroll">
             {% for user in participants %}
                  <a href="{% url 'user-profile' user.id %}" class="participant">
-              <div class="avatar avatar--medium {% if user.is_authenticated %}active{% endif %}">
+              <div class="avatar avatar--medium " id="avatar-{{ user.username }}" >
                 <img src="{{user.avatar.url}}" />
               </div>
               <p>
-                {% if user.is_authenticated %}active{% endif %}
-                {{user.username}}
-                <span>@{{user.username}}</span>
+                
+                {{user.name}}
+                <span id="avatar-name">@{{user.username}}</span>
               </p>
             </a>
+            
             {% endfor %}
           </div>
         </div>
         <!--  End -->
       </div>
     </main>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script>
+
+var roomName = "{{ room.id }}";
+var username = "{{ request.user.username }}"
+
+let activeUsers = [];
+console.log(activeUsers);
+var chatSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/' + roomName + '/'+ username+'/');
+console.log(chatSocket)
+
+chatSocket.onmessage = function(e) {
+  
+   var message = JSON.parse(e.data);
+   console.log(message.status)
+   if (message.type === 'active_users') {
+      //  activeUsers.push(message.users);
+        // Process the active user list, update UI, etc.
+        activeUsers= message.users
+        
+    }
+    checkActiveUser()
+   var timeAgo = timesince(message.created);
+   const messageBox = document.querySelector('#message-box');
+let html = '';
+
+if (username === message.user) {
+  html += `
+    <div class="thread-right">
+      <div class="thread__top-right">
+        
+          <a href="/delete-message/${message.messageId}/ ">
+            <div class="thread__delete">
+              <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                <title>remove</title>
+                <path
+                  d="M27.314 6.019l-1.333-1.333-9.98 9.981-9.981-9.981-1.333 1.333 9.981 9.981-9.981 9.98 1.333 1.333 9.981-9.98 9.98 9.98 1.333-1.333-9.98-9.98 9.98-9.981z"
+                ></path>
+              </svg>
+            </div>
+          </a>
+        
+        
+          <div class="thread__author-right">
+            <span class="thread__date" style="font-size: xx-small; padding-top: 0.8rem;">${message.created} ago</span>
+            <a href="/profile/${message.userId}" class="thread__authorInfo">
+              <span>@${message.user}</span>
+              <div class="avatar avatar--small">
+                <img src="/static/media/${message.avatar}" id="avatar-${message.user}"/>
+              </div>    
+            </a>
+          </div>
+        </div>
+        <div class="thread__details-right">
+          <div class="msg_text">
+            ${message.message}
+          </div>
+          `;
+} else if(message.message || message.message ==='') {
+  html += `
+    <div class="thread">
+      <div class="thread__top">
+        <div class="thread__author">
+          <a href="/profile/${message.userId}" class="thread__authorInfo">
+            <div class="avatar avatar--small" id="avatar-${message.user}">
+              <img src="/static/media/${message.avatar}" style="height: 1.8rem; width:1.8rem;"/>
+            </div>
+            <span>@${message.user}</span>
+          </a>
+          <span class="thread__date" style="font-size: xx-small; padding-top: 0.8rem;">${timeAgo} ago</span>
+        </div>
+
+       
+      </div>
+      <div class="thread__details">
+        <div class="msg_text">
+          ${message.message}
+        </div>
+      `;
+}
+
+
+  if (message.is_file) {
+    if (message.fileType === 'PDF') {
+      html += `
+        <div class="pdf-bubble">
+          <p>PDF File:<a href="${message.file}" download="${message.filename}">${message.filename}</a></p>
+        </div>
+      `;
+    } else if (message.fileType === 'DOC') {
+      html += `
+        <p>DOC File: <a href="${message.file}" download="${message.filename}">${message.filename}</a></p>
+      `;
+    } else if (message.fileType === 'Image') {
+      html += `
+        <div class="msg_img">
+          <img src="${message.file}" alt="${message.filename}">
+        </div>
+      `;
+    } else if (message.fileType === 'Video') {
+      html += `
+        <div class="msg_video">
+          <video src="${message.file}" controls></video>
+        </div>
+      `;
+    } else {
+      html += `
+        <div>
+          <p>Unsupported file type: <a href="${message.file}" download="${message.filename}">${message.filename}</a></p>
+        </div>
+      `;
+    }
+  }
+
+
+messageBox.innerHTML += html;
+}
+
+chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+document.querySelector('#chat-message-submit').onclick = function(e) {
+  e.preventDefault();
+    var messageInputDom = document.querySelector('#chat-message-input');
+    var messageUploadDom = document.querySelector('#upload');
+    var message = messageInputDom.value;
+    var file = messageUploadDom.files[0];
+    //var fileType = getFileType(file);
+   // console.log(file.size);
+    
+    if(message,file == null){
+      sendMessage(message);
+    }
+    
+    if(file){
+         sendFile(message,file);
+       }
+     messageInputDom.value = '';
+     messageUploadDom.value = null;
+     removeFile();
+};
+
+function sendMessage(content) {
+            const message = {
+                type: 'message',
+                user: username, 
+                content: content
+            };
+            chatSocket.send(JSON.stringify(message));
+        }
+
+function sendFile(content,file) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const data = event.target.result;
+        const message = {
+            type: 'file',
+            user: username,
+            message: content,
+            filename: file.name,
+            fileSize : file.size,
+            fileType : getFileType(file),
+            data: data
+        };
+        chatSocket.send(JSON.stringify(message));
+    };
+    reader.readAsDataURL(file);
+}
+
+function getFileType(file) {
+    const fileType = file.type;
+    if (fileType.startsWith('image')) {
+        return 'Image';
+    } else if (fileType === 'application/pdf') {
+        return 'PDF';
+    } else if (
+        fileType === 'application/msword' ||
+        fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ) {
+        return 'DOC';
+    } else if (fileType === 'application/xml' || fileType === 'text/xml') {
+        return 'XML';
+    } else if (
+        fileType === 'application/vnd.ms-excel' ||
+        fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ) {
+        return 'Excel';
+    } else if (fileType.startsWith('video')) {
+        return 'Video';
+    } else {
+        return 'Unknown';
+    }
+}
+function checkActiveUser(){
+var avatarElements = document.querySelectorAll('.avatar.avatar--medium');
+avatarElements.forEach(function(element) {
+    var username = element.id.replace('avatar-', '');
+   
+    if (activeUsers.includes(username)) {
+    
+          element.classList.add("active");
+     } 
+    
+  });
+  var avatarElements = document.querySelectorAll('.avatar.avatar--small');
+avatarElements.forEach(function(element) {
+    var username = element.id.replace('avatar-', '');
+   
+    if (activeUsers.includes(username)) {
+      
+          element.classList.add("active");
+     } 
+    
+  });
+}
+
+function timesince(date){
+  var format = 'YYYY-MM-DD HH:mm:ss';
+  var createdDate = moment(date,format);
+  // Specify the format of the datetime string
+
+ // var timeSince = createdDate.fromNow();
+ var timeSince = createdDate.calendar(null, {
+  sameDay: '[Today]',
+  lastDay: '[Yesterday]',
+  lastWeek: '[Last] dddd',
+  sameElse: 'MMM D, YYYY'
+});
+console.log(date)
+  return timeSince;
+
+}
+
+</script>
+
 {% endblock %}

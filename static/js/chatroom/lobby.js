@@ -147,6 +147,7 @@ function handleFileUpload() {
     // Display the file name
     fileNameSpan.textContent = file.name;
   }
+
 }
 
 // Add event listener for remove button click
@@ -185,41 +186,3 @@ makeUrlsClickable();
 
 
 
-var appID = 'fe0567a1deda453e946b47aa6a74d931';
-var roomName = scriptElement.getAttribute('data-room-id');
-
-var apiUrl = 'https://api.agora.io/v1/apps/' + appID + '/cloud_recording/resourceid/rooms/' + roomName;
-
-var headers = {
-  'Content-Type': 'application/json',
-  'Authorization': 'Bearer fe0567a1deda453e946b47aa6a74d931' // Replace with your access token or authentication method
-};
-
-function checkViewStatus() {
-  fetch(apiUrl, {
-    method: 'GET',
-    headers: headers
-  })
-  .then(function(response) {
-    if (response.ok) {
-      return response.json();
-    } else {
-      throw new Error('Failed to retrieve room status');
-    }
-  })
-  .then(function(data) {
-    var roomStatus = data.status;
-  
-    if (roomStatus === '1') {
-      console.log('The room ' + roomName + ' is active');
-    } else {
-      console.log('The room ' + roomName + ' is not active');
-    }
-  })
-  .catch(function(error) {
-    console.error('Error:', error.message);
-  });
-}
-
-// Periodically check the view status every 5 seconds (adjust as needed)
-setInterval(checkViewStatus, 5000);
