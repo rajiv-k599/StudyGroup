@@ -92,7 +92,27 @@
         </div>
     </main>
  
+ <script>
+    let userid = sessionStorage.getItem('uid')
+    let username = sessionStorage.getItem('display_name')
+    let roomid = "{{roomId}}"
     
+    var videoSocket = new WebSocket(
+  'ws://' + window.location.host +
+  '/ws/' + roomid + '/' + username + '/vs/' + userid + '/');
+  
+
+  videoSocket.onmessage = function(e) {
+  
+    var message = JSON.parse(e.data);
+    console.log(message)
+  } 
+  
+  videoSocket.onclose = function(e) {
+    console.error('Chat socket closed unexpectedly');
+};  
+
+ </script>   
 </body>
 <script type="text/javascript" src="{% static 'js/chatroom/AgoraRTC_N-4.17.2.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/chatroom/agora-rtm-sdk-1.5.1.js' %}"></script>

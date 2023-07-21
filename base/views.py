@@ -8,12 +8,6 @@ from django.urls import resolve
 from django.contrib.auth import authenticate, login, logout
 
 from .forms import RoomForm, UserForm, MyUserCreationForm
-# for forgotpw
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from base.models import User
 
 
 def forgot_password(request):
@@ -126,7 +120,7 @@ def room(request, pk):
     room = Room.objects.get(id=pk)
     room_messages = room.message_set.all().order_by('created')
     participants = room.participants.all()
-
+    
     if request.method == 'POST':
         file = request.FILES.get('file')
         msg = request.POST.get('body')
@@ -152,12 +146,17 @@ def room(request, pk):
         return redirect('room', pk=room.id)
 
      # Retrieve messages with associated media
-    messages_with_media = Message.objects.filter(
-        room=room, media__isnull=False)
+    messages_with_media = Message.objects.filter(room=room, media__isnull=False)
+    
+    context = {'room': room, 'room_messages':room_messages,
+                'participants':participants, 'messages_with_media': messages_with_media}
+    return render(request,'base/room.html',context)
 
-    context = {'room': room, 'room_messages': room_messages,
-               'participants': participants, 'messages_with_media': messages_with_media}
-    return render(request, 'base/room.html', context)
+# room messages:
+
+
+  #  messages_with_media = Message.objects.filter(room=room, media__isnull=False)
+
 
 # profile view
 
@@ -183,20 +182,17 @@ def createRoom(request):
         topic_name = request.POST.get('topic')
         topic, created = Topic.objects.get_or_create(name=topic_name)
 
-        Room.objects.create(
-            host=request.user,
-            topic=topic,
-            name=request.POST.get('name'),
-            description=request.POST.get('description')
+       Room.objects.create(
+           host=request.user,
+           topic = topic,
+           name = request.POST.get('name'),
+           description = request.POST.get('description')
         )
-        messages.success(request, 'room created successfully')
-        return redirect('home')
-
-    context = {'form': form, 'topics': topics}
-    return render(request, 'base/room_form.html', context)
-
-# update room
-
+       messages.success(request, 'room created successfully')
+       return redirect('home')
+    
+    context = {'form':form, 'topics': topics}
+    return render(request, 'base/room_form.html',context)
 
 @login_required(login_url='login')
 def updateRoom(request, pk):
@@ -231,6 +227,34 @@ def deleteRoom(request, pk):
         messages.success(request, 'room deleted successfully')
         return redirect('home')
     return render(request, 'base/delete.html', {'obj': room})
+
+@login_required(login_url='login')
+def joinRoom(request, pk):
+    room = Room.objects.get(id=pk)
+    room.participants.add(request.user)
+    return redirect('room', pk=room.id)
+
+@login_required(login_url='login')
+def leaveRoom(request, pk):
+    room = Room.objects.get(id=pk)
+    
+    if room.host != request.user:
+      room.participants.remove(request.user)
+    return redirect('room', pk=room.id)
+
+@login_required(login_url='login')
+def removeUser(request):
+    if request.method == 'GET':
+        roomId = request.GET.get('room')
+        userId = request.GET.get('user')
+        user = User.objects.get(id=userId)
+        room = Room.objects.get(id=roomId )
+        if room.host != user:
+            room.participants.remove(user)
+
+    return redirect('room', pk=room.id)
+
+
 
 # deleted message
 

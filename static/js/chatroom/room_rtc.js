@@ -27,6 +27,7 @@ if(!roomId){
     roomId = 'main'
 }
 
+
 let displayName = sessionStorage.getItem('display_name')
 if(!displayName){
     window.close();
