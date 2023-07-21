@@ -1,6 +1,6 @@
 # StudyGroup
-Django project where user can created room and remote user can join room and can communicate it participants
 
+Django project where user can created room and remote user can join room and can communicate it participants
 
 Cloning the repository
 --> Clone the repository using the command below :
@@ -13,9 +13,11 @@ cd studyGroup
 --> Create a virtual environment :
 
 # Let's install virtualenv first
+
 pip install virtualenv
 
 # Then we create our virtual environment
+
 virtualenv envname
 --> Activate the virtual environment :
 envname\scripts\activate
