@@ -16,6 +16,9 @@ urlpatterns = [
     path('update-user/',views.updateUser, name="update-user"),
     path('topics/',views.topicsPage, name="topics"),
     path('activity/',views.activityPage, name="activities"),
+    path('join/<str:pk>',views.joinRoom, name="join-room"),
+    path('leave/<str:pk>',views.leaveRoom, name="leave-room"),
+    path('user/remove',views.removeUser, name="remove-user"),
 
     path('chat-room/<str:room>/',views.chatRoom, name="chatroom"),
     path('user_active/<str:user_id>/', views.check_remote_user_active, name='active-user'),

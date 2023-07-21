@@ -1318,10 +1318,16 @@ max-height: 30rem;
 }
 
 .participants__list {
+
   padding: 2rem;
   height: 82.5vh;
   overflow-y: scroll;
   padding-bottom: 0;
+}
+
+.participants__box{
+  display: flex;
+  justify-content: space-between;
 }
 
 .participant {

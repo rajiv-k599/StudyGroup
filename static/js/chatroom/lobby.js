@@ -13,10 +13,10 @@ if(displayName){
     form.name.value = displayName
 }
 
-document.addEventListener('DOMContentLoaded', onPageLoad);
-function onPageLoad() {
-  changeVideoCallStatus(roomid)
-  }
+// document.addEventListener('DOMContentLoaded', onPageLoad);
+// function onPageLoad() {
+//   changeVideoCallStatus(roomid)
+//   }
 
 
 
@@ -34,9 +34,9 @@ form.addEventListener('submit', (e) => {
         roomId : inviteCode,
         hostId : e.target.hostId.value
       };
-    changeRoomVideoStatus(data);
+   // changeRoomVideoStatus(data);
    // changeVideoCallStatus(inviteCode);
-   onPageLoad()
+   //onPageLoad()
    // console.log(inviteCode);
   //  window.location = `/chat-room/${inviteCode}`;
     var dynamicURL = "/chat-room/" + inviteCode + "/";

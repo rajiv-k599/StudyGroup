@@ -59,7 +59,21 @@
                 </svg>
               </a>
             </div>
+            {% else %}
+              
+               {% if user_is_participant %}
+                <form action="{% url 'leave-room' room.id %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit">Leave</button>
+                </form>
+                {% else %}
+                  <form action="{% url 'join-room' room.id %}" method="post">
+                      {% csrf_token %}
+                      <button type="submit">Join</button>
+                  </form>
+               {% endif %}
             {% endif %}
+            
             <!-- <button class="action-button" data-id="120" data-delete-url="https://randomuser.me/api/3324923"
             data-edit-url="profile.html">
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -93,12 +107,13 @@
                 </a>
                </div>
                <div class="" >
+                
                 <form id="lobby__form">
                   <input type="hidden" name="name" value="{{request.user.name}}">
                   <input type="hidden" name="room" value="{{room.id}}">
                   <input type="hidden" name="hostId" value="{{request.user.id}}">
                      
-                  <button class="btn btn--main" id="video_call_btn" type="submit"></button>
+                  <button class="btn btn--main" id="video_call_btn" type="submit">video chat</button>
                  
                 </form>
                </div>
@@ -272,16 +287,27 @@
           <h3 class="participants__top">Participants <span>({{participants.count}} Joined)</span></h3>
           <div class="participants__list scroll">
             {% for user in participants %}
-                 <a href="{% url 'user-profile' user.id %}" class="participant">
-              <div class="avatar avatar--medium " id="avatar-{{ user.username }}" >
-                <img src="{{user.avatar.url}}" />
-              </div>
-              <p>
-                
-                {{user.name}}
-                <span id="avatar-name">@{{user.username}}</span>
-              </p>
-            </a>
+            <div class="participants__box">
+              <a href="{% url 'user-profile' user.id %}" class="participant">
+                <div class="avatar avatar--medium " id="avatar-{{ user.username }}" >
+                  <img src="{{user.avatar.url}}" />
+                </div>
+                <p>
+                  
+                  {{user.name}}
+                  <span id="avatar-name">@{{user.username}}</span>
+                </p>
+              </a>
+              {% if user != request.user %}
+               <form action="{% url 'remove-user' %}" method="GET">
+                {% csrf_token %}
+                 <input type="hidden" name="room" value="{{room.id}}">
+                 <input type="hidden" name="user" value="{{user.id}}">
+                <button type="submit">remove</button>
+            </form>
+            {% endif %}
+            </div>
+         
             
             {% endfor %}
           </div>

@@ -92,6 +92,7 @@ def room(request, pk):
     room = Room.objects.get(id=pk)  
     room_messages = room.message_set.all().order_by('created')
     participants = room.participants.all()
+    user_is_participant = request.user in participants
     
     if request.method == 'POST':
         file = request.FILES.get('file')
@@ -121,9 +122,9 @@ def room(request, pk):
     
      # Retrieve messages with associated media
   #  messages_with_media = Message.objects.filter(room=room, media__isnull=False)
-    
+    print(user_is_participant)
     context = {'room': room, 'room_messages':room_messages,
-                'participants':participants}
+                'participants':participants, 'user_is_participant': user_is_participant,}
     return render(request,'base/room.html',context)
 
 # room messages:
@@ -151,12 +152,13 @@ def createRoom(request):
        topic_name = request.POST.get('topic')
        topic,created = Topic.objects.get_or_create(name=topic_name)
 
-       Room.objects.create(
+       room = Room.objects.create(
            host=request.user,
            topic = topic,
            name = request.POST.get('name'),
            description = request.POST.get('description')
         )
+       room.participants.add(request.user)
        messages.success(request, 'room created successfully')
        return redirect('home')
     
@@ -195,6 +197,34 @@ def deleteRoom(request, pk):
         messages.success(request, 'room deleted successfully')
         return redirect('home')
     return render(request,'base/delete.html',{'obj':room})
+
+@login_required(login_url='login')
+def joinRoom(request, pk):
+    room = Room.objects.get(id=pk)
+    room.participants.add(request.user)
+    return redirect('room', pk=room.id)
+
+@login_required(login_url='login')
+def leaveRoom(request, pk):
+    room = Room.objects.get(id=pk)
+    
+    if room.host != request.user:
+      room.participants.remove(request.user)
+    return redirect('room', pk=room.id)
+
+@login_required(login_url='login')
+def removeUser(request):
+    if request.method == 'GET':
+        roomId = request.GET.get('room')
+        userId = request.GET.get('user')
+        user = User.objects.get(id=userId)
+        room = Room.objects.get(id=roomId )
+        if room.host != user:
+            room.participants.remove(user)
+
+    return redirect('room', pk=room.id)
+
+
 
 # deleted message
 @login_required(login_url='login')
