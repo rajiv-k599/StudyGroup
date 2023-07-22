@@ -182,14 +182,14 @@ def createRoom(request):
         topic_name = request.POST.get('topic')
         topic, created = Topic.objects.get_or_create(name=topic_name)
 
-       Room.objects.create(
+        Room.objects.create(
            host=request.user,
            topic = topic,
            name = request.POST.get('name'),
            description = request.POST.get('description')
         )
-       messages.success(request, 'room created successfully')
-       return redirect('home')
+        messages.success(request, 'room created successfully')
+        return redirect('home')
     
     context = {'form':form, 'topics': topics}
     return render(request, 'base/room_form.html',context)
