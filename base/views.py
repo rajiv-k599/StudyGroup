@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -8,6 +8,9 @@ from django.urls import resolve
 from django.contrib.auth import authenticate, login, logout
 
 from .forms import RoomForm, UserForm, MyUserCreationForm
+import magic
+import os
+
 
 
 def forgot_password(request):
@@ -182,14 +185,14 @@ def createRoom(request):
         topic_name = request.POST.get('topic')
         topic, created = Topic.objects.get_or_create(name=topic_name)
 
-       Room.objects.create(
+        Room.objects.create(
            host=request.user,
            topic = topic,
            name = request.POST.get('name'),
            description = request.POST.get('description')
         )
-       messages.success(request, 'room created successfully')
-       return redirect('home')
+        messages.success(request, 'room created successfully')
+        return redirect('home')
     
     context = {'form':form, 'topics': topics}
     return render(request, 'base/room_form.html',context)
@@ -341,3 +344,29 @@ def check_remote_user_active(request, user_id):
         return JsonResponse({'is_active': is_active})
     except User.DoesNotExist:
         return JsonResponse({'error': 'User does not exist'})
+
+def open_file(request, file_id):
+   
+    # Assuming you have a model called `File` that stores the files.
+    file_obj = get_object_or_404(Media, id=file_id)
+    file_path = file_obj.media_path.path
+
+    # Use python-magic to detect the file type based on its content
+    file_type = magic.from_file(file_path, mime=True)
+   
+    # Open and serve the file based on its detected content type
+    with open(file_path, 'rb') as file:
+        response = HttpResponse(file.read(), content_type=file_type)
+        response['Content-Disposition'] = f'inline; filename="{os.path.basename(file_path)}"'
+        return response
+    
+def download_image(request, image_id):
+    # Assuming you have a model called `Image` that stores the images.
+    image_obj = get_object_or_404(Media, id=image_id)
+    image_path = image_obj.media_path.path
+
+    # Open the image file and serve it as a download
+    with open(image_path, 'rb') as image_file:
+        response = HttpResponse(image_file.read(), content_type='image/jpeg')  # Change content type according to your image type (e.g., 'image/png' for PNG images)
+        response['Content-Disposition'] = f'attachment; filename="{os.path.basename(image_path)}"'
+        return response    

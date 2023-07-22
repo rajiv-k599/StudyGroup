@@ -165,14 +165,17 @@
                        {% if media.media_type == 'PDF' %}
                        <div class="pdf-bubble">
                          <p>PDF File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                         <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                          
                      </div>
              
                        {% elif media.media_type == 'DOC' %}
                        <p>DOC File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                       <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                        {% elif media.media_type == 'Image' %}
                        <div class="msg_img" >
                          <img src="{{ media.media_path.url }}" alt="{{ media.file_name }}" >
+                         <div><a href="{% url 'download-image' media.id %}" download>Download</a></div>
                        </div>
                        {% elif media.media_type == 'Video' %}
                          <div class="msg_video">
@@ -181,6 +184,7 @@
                        {% else %}
                        <div>
                          <p>Unsupported file type:  <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                         <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                          </div>
                       {% endif %} 
                     {% endif %}
@@ -222,13 +226,16 @@
                       {% if media.media_type == 'PDF' %}
                       <div>
                         <p class="pdf-bubble">PDF File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                        <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                     </div>
             
                       {% elif media.media_type == 'DOC' %}
                       <p class="pdf-bubble">PDF File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                      <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                       {% elif media.media_type == 'Image' %}
                       <div class="msg_img">
                         <img src="{{ media.media_path.url }}" alt="{{ media.file_name }}" >
+                        <div><a href="{% url 'download-image' media.id %}" download>Download</a></div>
                       </div>
                       {% elif media.media_type == 'Video' %}
                          <div class="msg_video">
@@ -238,6 +245,7 @@
                       {% else %}
                       <div>
                         <p class="pdf-bubble">Unsupported file type:  <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                        <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                       </div>
                      {% endif %} 
                    {% endif %}
@@ -364,7 +372,7 @@ if (username === message.user) {
         
         
           <div class="thread__author-right">
-            <span class="thread__date" style="font-size: xx-small; padding-top: 0.8rem;">${message.created} ago</span>
+            <span class="thread__date" style="font-size: xx-small; padding-top: 0.8rem;">${timeAgo} ago</span>
             <a href="/profile/${message.userId}" class="thread__authorInfo">
               <span>@${message.user}</span>
               <div class="avatar avatar--small">
@@ -544,15 +552,15 @@ function timesince(date){
 
  // var timeSince = createdDate.fromNow();
  var timeSince = createdDate.calendar(null, {
-  sameDay: '[Today]',
+  sameDay: '[Now]',
   lastDay: '[Yesterday]',
   lastWeek: '[Last] dddd',
   sameElse: 'MMM D, YYYY'
 });
-console.log(date)
   return timeSince;
-
 }
+
+
 
 </script>
 
