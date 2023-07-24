@@ -4,8 +4,9 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async, async_to_sync
 from django.core.files.base import ContentFile
-from .models import Room, Message, User, Media
+from .models import Room, Message, User, Media, Notification
 from channels.layers import get_channel_layer
+from .constants import NotificationType
 
 
 import base64
@@ -49,6 +50,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
 
         if message_type == 'message':
+          if message.get('content') != " ": 
             content = message.get('content')
             username = message.get('user')
             await self.handle_message(username, content)
@@ -84,8 +86,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def handle_message(self, username, content):
         #room = Room.objects.get(id=self.room_name)  
        # user = User.objects.get(email=username)
+        
 
         message = await self.save_text_data( username, content)  
+
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -167,12 +171,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_text_data(self, username, content):
         room = Room.objects.get(id=self.room_name)  
         user = User.objects.get(username=username)
+
         message = Message.objects.create(
             user = user,
             room = room,
             body = content
         )
         room.participants.add(user)
+
+        words = content.split()
+        usernames = [word[1:] for word in words if word.startswith("@")]
+        
+        if usernames != None:
+            for mentioned in usernames:
+                try:
+                    userMention = User.objects.get(username=mentioned)
+                
+                    Notification.objects.create(
+                        sender = user,
+                        receiver = userMention,
+                        type = NotificationType.Mention,
+                        room = room
+                    )
+                except User.DoesNotExist:
+                    print(f"User with username '{mentioned}' not found.")
+
         return message
          
     @sync_to_async
@@ -183,6 +206,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         file_format, file_data1 = data.split(';base64,')
         decoded_message = base64.b64decode(file_data1)
         file_data = ContentFile(decoded_message,name=filename)
+
+        words = content.split()
+        usernames = [word[1:] for word in words if word.startswith("@")]
+        
          
         #print(decoded_message)
         message = Message.objects.create(
@@ -199,6 +226,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
             media_path = file_data
         )
         room.participants.add(user)
+
+        words = content.split()
+        usernames = [word[1:] for word in words if word.startswith("@")]
+        
+        if usernames != None:
+            for mentioned in usernames:
+                try:
+                    userMention = User.objects.get(username=mentioned)
+                
+                    Notification.objects.create(
+                        sender = user,
+                        receiver = userMention,
+                        type = NotificationType.Mention,
+                        room = room
+                    )
+                except User.DoesNotExist:
+                    print(f"User with username '{mentioned}' not found.")
+
         return message
     
     # async def check_video_channel_status(self,room_name):
@@ -238,9 +283,11 @@ class VideoConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.userId = self.scope['url_route']['kwargs']['userId']
+        self.username = self.scope['url_route']['kwargs']['username']
         self.room_group_name = 'video_%s' % self.room_name
         
-        self.add_user_to_channel(self.room_name, self.userId)
+        if self.username != 'dummy':
+         self.add_user_to_channel(self.room_name, self.userId)
         # and send the channel status as a message to the client
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -261,7 +308,8 @@ class VideoConsumer(AsyncWebsocketConsumer):
         
 
     async def disconnect(self, close_code):
-        self.remove_user_from_channel(self.room_name, self.userId)
+        if self.username != 'dummy':
+         self.remove_user_from_channel(self.room_name, self.userId)
         # Perform any necessary cleanup here
         await self.channel_layer.group_discard(
             self.room_group_name,

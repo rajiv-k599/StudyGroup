@@ -7,9 +7,8 @@ urlpatterns =[
     path('', views.getRoutes),
     path('rooms/', views.getRooms),
     path('rooms/<str:pk>/', views.getRoom),
-    path('rooms/call-status/active', views.roomCallStatusActive),
-    path('rooms/call-status/inactive', views.roomCallStatusInactive),
-    path('rooms/call-status/<str:pk>', views.getVideoStatus),
+   
+    path('rooms/member/<str:pk>/', views.getParticipants),
     
 
 

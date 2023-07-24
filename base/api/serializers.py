@@ -1,12 +1,14 @@
 from rest_framework.serializers import ModelSerializer
-from base.models import Room, VideoStatus
+from base.models import Room, User
 
 class RoomSerializer(ModelSerializer):
     class Meta:
         model = Room
         fields = '__all__'
 
-class VideoStatusSerializer(ModelSerializer):
+
+
+class UsernameSerialization(ModelSerializer):
     class Meta:
-        model = VideoStatus
-        fields = '__all__'
+        model = User
+        fields = ['username']

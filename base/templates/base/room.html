@@ -113,7 +113,7 @@
                   <input type="hidden" name="room" value="{{room.id}}">
                   <input type="hidden" name="hostId" value="{{request.user.id}}">
                      
-                  <button class="btn btn--main" id="video_call_btn" type="submit">video chat</button>
+                  <button class="btn btn--main" id="video_call_btn" type="submit"></button>
                  
                 </form>
                </div>
@@ -165,14 +165,17 @@
                        {% if media.media_type == 'PDF' %}
                        <div class="pdf-bubble">
                          <p>PDF File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                         <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                          
                      </div>
              
                        {% elif media.media_type == 'DOC' %}
                        <p>DOC File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                       <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                        {% elif media.media_type == 'Image' %}
                        <div class="msg_img" >
                          <img src="{{ media.media_path.url }}" alt="{{ media.file_name }}" >
+                         <div><a href="{% url 'download-image' media.id %}" download>Download</a></div>
                        </div>
                        {% elif media.media_type == 'Video' %}
                          <div class="msg_video">
@@ -181,6 +184,7 @@
                        {% else %}
                        <div>
                          <p>Unsupported file type:  <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                         <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                          </div>
                       {% endif %} 
                     {% endif %}
@@ -222,13 +226,16 @@
                       {% if media.media_type == 'PDF' %}
                       <div>
                         <p class="pdf-bubble">PDF File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                        <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                     </div>
             
                       {% elif media.media_type == 'DOC' %}
-                      <p class="pdf-bubble">PDF File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                      <p class="pdf-bubble">DOC File: <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                      <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                       {% elif media.media_type == 'Image' %}
                       <div class="msg_img">
                         <img src="{{ media.media_path.url }}" alt="{{ media.file_name }}" >
+                        <div><a href="{% url 'download-image' media.id %}" download>Download</a></div>
                       </div>
                       {% elif media.media_type == 'Video' %}
                          <div class="msg_video">
@@ -238,6 +245,7 @@
                       {% else %}
                       <div>
                         <p class="pdf-bubble">Unsupported file type:  <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
+                        <span><a href="{% url 'open-file' media.id %}" target="_blank"> Open</a></span>
                       </div>
                      {% endif %} 
                    {% endif %}
@@ -258,7 +266,7 @@
               {% csrf_token %}
               <div class="send_message">
                 <div class="text_message">
-                  <input class="message-input" id="chat-message-input" name="body" placeholder="Write your message here..." />
+                  <textarea class="message-input" id="chat-message-input" name="body"  placeholder="Write your message here..." ></textarea>
                 </div>
                
                 <div class="file_upload">
@@ -272,7 +280,7 @@
               
             </div>
             </form>
-
+            <div id="mentionSuggestions" class="preview" ></div>
             <div id="preview" class="preview">
               <span id="file-name"></span>
               <button id="remove-button">Remove</button>
@@ -298,13 +306,16 @@
                   <span id="avatar-name">@{{user.username}}</span>
                 </p>
               </a>
-              {% if user != request.user %}
-               <form action="{% url 'remove-user' %}" method="GET">
+              {% if request.user == room.host %}
+              {% if user != room.host %}
+              
+              <form action="{% url 'remove-user' %}" method="GET">
                 {% csrf_token %}
                  <input type="hidden" name="room" value="{{room.id}}">
                  <input type="hidden" name="user" value="{{user.id}}">
                 <button type="submit">remove</button>
-            </form>
+              </form>
+              {% endif %}
             {% endif %}
             </div>
          
@@ -364,7 +375,7 @@ if (username === message.user) {
         
         
           <div class="thread__author-right">
-            <span class="thread__date" style="font-size: xx-small; padding-top: 0.8rem;">${message.created} ago</span>
+            <span class="thread__date" style="font-size: xx-small; padding-top: 0.8rem;">${timeAgo} ago</span>
             <a href="/profile/${message.userId}" class="thread__authorInfo">
               <span>@${message.user}</span>
               <div class="avatar avatar--small">
@@ -451,8 +462,13 @@ document.querySelector('#chat-message-submit').onclick = function(e) {
     //var fileType = getFileType(file);
    // console.log(file.size);
     
+    
     if(message,file == null){
-      sendMessage(message);
+      if(message !== ''){
+        sendMessage(message);
+      }else{
+        return;
+      }
     }
     
     if(file){
@@ -544,15 +560,82 @@ function timesince(date){
 
  // var timeSince = createdDate.fromNow();
  var timeSince = createdDate.calendar(null, {
-  sameDay: '[Today]',
+  sameDay: '[Now]',
   lastDay: '[Yesterday]',
   lastWeek: '[Last] dddd',
   sameElse: 'MMM D, YYYY'
 });
-console.log(date)
   return timeSince;
-
 }
+
+var userid = '{{user.id}}'
+
+var videoSocket = new WebSocket(
+  'ws://' + window.location.host +
+  '/ws/' + roomName + '/' + 'dummy' + '/vs/' + userid + '/');
+  
+videoSocket.onmessage = function(e) {
+  
+  var message = JSON.parse(e.data);
+  console.log(message)
+  var video = document.getElementById('video_call_btn');
+  if(message.active === true){
+    video.innerText = "join call"
+  }
+  if(message.active === false){
+    video.innerText = "create call"
+  }
+     
+} 
+
+videoSocket.onclose = function(e) {
+  console.error('Chat socket closed unexpectedly');
+};  
+
+$(document).ready(function () {
+            const messageInput = $("#chat-message-input");
+            const mentionSuggestions = $("#mentionSuggestions");
+
+            messageInput.on("input", function () {
+                const content = messageInput.val();
+                const lastAtSymbolIndex = content.lastIndexOf("@");
+
+                if (lastAtSymbolIndex !== -1) {
+                    const query = content.substring(lastAtSymbolIndex + 1);
+                    if (query.length > 0) {
+                        // Send AJAX request to fetch mention suggestions
+                        $.ajax({
+                            type: "GET",
+                            url: `/api/rooms/member/${roomName}/?query=${query}`,
+                            success: function (data) {
+                              
+                                mentionSuggestions.empty();
+                                mentionSuggestions.removeClass('show')
+                                data.forEach(user => {
+                                  mentionSuggestions.addClass('show');
+                                    mentionSuggestions.append(`<div>@${user.username}</div>`);
+                                });
+                            }
+                        });
+                    } else {
+                        mentionSuggestions.empty();
+                        mentionSuggestions.removeClass('show')
+                    }
+                } else {
+                    mentionSuggestions.empty();
+                    mentionSuggestions.removeClass('show')
+                }
+            });
+
+            $("#messageForm").submit(function (event) {
+                event.preventDefault();
+                const message = messageInput.val();
+                // Submit the message to the server
+                // You'll need to handle saving the mentions on the backend.
+            });
+        });
+    </script>
+
 
 </script>
 

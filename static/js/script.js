@@ -42,6 +42,7 @@
 //   });
 // }
 
+
 // Menu
 setTimeout(function() {
   var toasts = document.querySelectorAll('.toast');
@@ -58,6 +59,13 @@ function dismissToast(element) {
       toast.style.display = 'none';
   }, 500);
 }
+
+var a = document.querySelector(".dropdown-content");
+function myFunction() {
+a.classList.toggle("show"); 
+}
+
+
 
 const dropdownMenu = document.querySelector(".dropdown-menu");
 const dropdownButton = document.querySelector(".dropdown-button");
@@ -82,3 +90,4 @@ if (photoInput)
 // Scroll to Bottom
 const conversationThread = document.querySelector(".room__box");
 if (conversationThread) conversationThread.scrollTop = conversationThread.scrollHeight;
+

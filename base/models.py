@@ -64,13 +64,16 @@ class Media(models.Model):
         return self.media_name
     
 
-class VideoStatus(models.Model):
-    room = models.OneToOneField(Room, on_delete=models.CASCADE)
-    host = models.CharField(max_length=255, null=True)
-    status = models.CharField(max_length=50,default=Status.INACTIVE)
-    ended = models.DateTimeField(null=True,blank=True)
-    created = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        return self.status
+class Notification(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_notifications')
+    type = models.CharField(max_length=100, null=True)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    seen = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.type
+
+
+    
