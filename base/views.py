@@ -1,9 +1,12 @@
+from .models import User, BaseRoomParticipants, Topic
+from .models import User, BaseRoomParticipants, Topic
+from django.shortcuts import render
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Room, Topic, Message, User, Media
+from .models import Room, Topic, Message, User, Media, BaseRoomParticipants
 from django.urls import resolve
 from django.contrib.auth import authenticate, login, logout
 
@@ -161,15 +164,43 @@ def room(request, pk):
 # profile view
 
 
+# @login_required(login_url='login')
+# def userProfile(request, pk):
+#     user = User.objects.get(id=pk)
+#     rooms = user.room_set.all()
+#     room_messages = user.message_set.all()
+#     topics = Topic.objects.all()
+#     context = {'user': user, 'rooms': rooms,
+#                'topics': topics, 'room_messages': room_messages}
+#     return render(request, 'base/profile.html', context)
+
+
 @login_required(login_url='login')
 def userProfile(request, pk):
     user = User.objects.get(id=pk)
-    rooms = user.room_set.all()
+
+    # Query the rooms where the user is the host
+    hosted_rooms = Room.objects.filter(host_id=pk)
+
+    # Query the rooms where the user is a participant but not the host
+    joined_rooms = Room.objects.filter(
+        participants__id=pk).exclude(host_id=pk)
+
     room_messages = user.message_set.all()
+    roompct = BaseRoomParticipants.objects.all()
     topics = Topic.objects.all()
-    context = {'user': user, 'rooms': rooms,
-               'topics': topics, 'room_messages': room_messages}
+
+    context = {
+        'user': user,
+        'hosted_rooms': hosted_rooms,
+        'joined_rooms': joined_rooms,
+        'topics': topics,
+        'room_messages': room_messages,
+        'roompct': roompct
+    }
+
     return render(request, 'base/profile.html', context)
+
 
 # create room
 

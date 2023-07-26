@@ -36,10 +36,13 @@
             </h2>
           </div>
         </div>
-        <div> {% include 'base/feed_component.html'%}</div>
-        <div>
-          {% include 'base/joined_rooms_list.html' %}
+        <div> {% include 'base/hosted_room_list.html'%}</div>
+        <div class="roomList__header">
+          <div>
+            <h2>Study Rooms Joined by {{user.username}}</h2>
+          </div>
         </div>
+            <div>            {% include 'base/joined_rooms_list.html' %} </div>
       </div>
       <!-- Room List End -->
     
