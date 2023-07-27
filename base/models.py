@@ -86,3 +86,10 @@ class VideoStatus(models.Model):
 
     def __str__(self):
         return self.status
+
+
+class BaseRoomParticipants(models.Model):
+    id = models.AutoField(primary_key=True)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='room_participant')

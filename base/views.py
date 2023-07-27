@@ -17,7 +17,6 @@ import magic
 import os
 
 
-
 def forgot_password(request):
     if request.method == 'POST':
         email = request.POST['email']
@@ -112,7 +111,8 @@ def home(request):
         Q(topic__name__icontains=q) |
         Q(name__icontains=q)
     )
-    notifications = Notification.objects.filter(receiver=request.user, seen=False )
+    notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
     topics = Topic.objects.all()[0:4]
     room_count = rooms.count()
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
@@ -129,7 +129,7 @@ def room(request, pk):
     room = Room.objects.get(id=pk)
     room_messages = room.message_set.all().order_by('created')
     participants = room.participants.all()
-    
+
     if request.method == 'POST':
         file = request.FILES.get('file')
         msg = request.POST.get('body')
@@ -153,15 +153,16 @@ def room(request, pk):
 
         room.participants.add(request.user)
         return redirect('room', pk=room.id)
-    
+
     user_is_participant = request.user in participants
 
-     # Retrieve messages with associated media
-    messages_with_media = Message.objects.filter(room=room, media__isnull=False)
-    
-    context = {'room': room, 'room_messages':room_messages,
-                'participants':participants, 'messages_with_media': messages_with_media}
-    return render(request,'base/room.html',context)
+    # Retrieve messages with associated media
+    messages_with_media = Message.objects.filter(
+        room=room, media__isnull=False)
+
+    context = {'room': room, 'room_messages': room_messages,
+               'participants': participants, 'messages_with_media': messages_with_media}
+    return render(request, 'base/room.html', context)
 
 # room messages:
 
@@ -201,29 +202,32 @@ def userProfile(request, pk):
 def createRoom(request):
     form = RoomForm()
     topics = Topic.objects.all()
-    notifications = Notification.objects.filter(receiver=request.user, seen=False )
+    notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
         topic, created = Topic.objects.get_or_create(name=topic_name)
 
-       Room.objects.create(
-           host=request.user,
-           topic = topic,
-           name = request.POST.get('name'),
-           description = request.POST.get('description')
-        )
-       messages.success(request, 'room created successfully')
-       return redirect('home')
-    
-    context = {'form':form, 'topics': topics}
-    return render(request, 'base/room_form.html',context)
+    Room.objects.create(
+        host=request.user,
+        topic=topic,
+        name=request.POST.get('name'),
+        description=request.POST.get('description')
+    )
+    messages.success(request, 'room created successfully')
+    return redirect('home')
+
+    context = {'form': form, 'topics': topics}
+    return render(request, 'base/room_form.html', context)
+
 
 @login_required(login_url='login')
 def updateRoom(request, pk):
     room = Room.objects.get(id=pk)
     form = RoomForm(instance=room)
     topics = Topic.objects.all()
-    notifications = Notification.objects.filter(receiver=request.user, seen=False )
+    notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
 
     if request.user != room.host:
         return HttpResponse('you are not allowed here')
@@ -238,7 +242,8 @@ def updateRoom(request, pk):
         messages.success(request, 'room updated successfully')
         return redirect('home')
 
-    context = {'form': form, 'topics': topics, 'room': room,'notifications': notifications}
+    context = {'form': form, 'topics': topics,
+               'room': room, 'notifications': notifications}
     return render(request, 'base/room_form.html', context)
 
 # delete room
@@ -247,12 +252,13 @@ def updateRoom(request, pk):
 @login_required(login_url='login')
 def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
-    notifications = Notification.objects.filter(receiver=request.user, seen=False )
+    notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
     if request.method == 'POST':
         room.delete()
         messages.success(request, 'room deleted successfully')
         return redirect('home')
-    return render(request, 'base/delete.html', {'obj': room,'notifications': notifications})
+    return render(request, 'base/delete.html', {'obj': room, 'notifications': notifications})
 
 
 @login_required(login_url='login')
@@ -260,11 +266,11 @@ def joinRoom(request, pk):
     room = Room.objects.get(id=pk)
     room.participants.add(request.user)
     Notification.objects.create(
-        sender = request.user,
-        receiver = room.host,
-        type = NotificationType.Join,
-        room = room
-                    )
+        sender=request.user,
+        receiver=room.host,
+        type=NotificationType.Join,
+        room=room
+    )
     return redirect('room', pk=room.id)
 
 
@@ -273,7 +279,7 @@ def leaveRoom(request, pk):
     room = Room.objects.get(id=pk)
 
     if room.host != request.user:
-      room.participants.remove(request.user)
+        room.participants.remove(request.user)
     return redirect('room', pk=room.id)
 
 
@@ -290,14 +296,14 @@ def removeUser(request):
     return redirect('room', pk=room.id)
 
 
-
 # deleted message
 
 
 @login_required(login_url='login')
 def deleteMessage(request, pk):
     message = Message.objects.get(id=pk)
-    notifications = Notification.objects.filter(receiver=request.user, seen=False )
+    notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
 
     if request.user != message.user:
         return HttpResponse('you are not allowed here')
@@ -314,7 +320,8 @@ def deleteMessage(request, pk):
 @login_required(login_url='login')
 def updateUser(request):
     user = request.user
-    notifications = Notification.objects.filter(receiver=request.user, seen=False )
+    notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
     form = UserForm(instance=user)
     if request.method == 'POST':
         form = UserForm(request.POST, request.FILES, instance=user)
@@ -323,7 +330,7 @@ def updateUser(request):
             messages.success(request, 'user updated successfully')
             return redirect('user-profile', pk=user.id)
 
-    return render(request, 'base/update_user.html', {'form': form,'notifications': notifications})
+    return render(request, 'base/update_user.html', {'form': form, 'notifications': notifications})
 
 # To get topics
 
@@ -331,8 +338,9 @@ def updateUser(request):
 def topicsPage(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     topics = Topic.objects.filter(name__icontains=q)
-    notifications = Notification.objects.filter(receiver=request.user, seen=False )
-    context = {'topics': topics,'notifications': notifications}
+    notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
+    context = {'topics': topics, 'notifications': notifications}
     return render(request, 'base/topics.html', context)
 
 # to get activity
@@ -340,8 +348,9 @@ def topicsPage(request):
 
 def activityPage(request):
     room_messages = Message.objects.all()
-    notifications = Notification.objects.filter(receiver=request.user, seen=False )
-    context = {'room_messages': room_messages,'notifications': notifications}
+    notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
+    context = {'room_messages': room_messages, 'notifications': notifications}
     return render(request, 'base/activity.html', context)
 
 # redirect to chat room
@@ -381,21 +390,23 @@ def check_remote_user_active(request, user_id):
     except User.DoesNotExist:
         return JsonResponse({'error': 'User does not exist'})
 
+
 def open_file(request, file_id):
-   
+
     # Assuming you have a model called `File` that stores the files.
     file_obj = get_object_or_404(Media, id=file_id)
     file_path = file_obj.media_path.path
 
     # Use python-magic to detect the file type based on its content
     file_type = magic.from_file(file_path, mime=True)
-   
+
     # Open and serve the file based on its detected content type
     with open(file_path, 'rb') as file:
         response = HttpResponse(file.read(), content_type=file_type)
         response['Content-Disposition'] = f'inline; filename="{os.path.basename(file_path)}"'
         return response
-    
+
+
 def download_image(request, image_id):
     # Assuming you have a model called `Image` that stores the images.
     image_obj = get_object_or_404(Media, id=image_id)
@@ -403,6 +414,7 @@ def download_image(request, image_id):
 
     # Open the image file and serve it as a download
     with open(image_path, 'rb') as image_file:
-        response = HttpResponse(image_file.read(), content_type='image/jpeg')  # Change content type according to your image type (e.g., 'image/png' for PNG images)
+        # Change content type according to your image type (e.g., 'image/png' for PNG images)
+        response = HttpResponse(image_file.read(), content_type='image/jpeg')
         response['Content-Disposition'] = f'attachment; filename="{os.path.basename(image_path)}"'
-        return response    
+        return response
