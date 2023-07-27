@@ -34,43 +34,12 @@ form.addEventListener('submit', (e) => {
         roomId : inviteCode,
         hostId : e.target.hostId.value
       };
-   // changeRoomVideoStatus(data);
-   // changeVideoCallStatus(inviteCode);
-   //onPageLoad()
-   // console.log(inviteCode);
-  //  window.location = `/chat-room/${inviteCode}`;
+  
     var dynamicURL = "/chat-room/" + inviteCode + "/";
     console.log(dynamicURL);
      window.open(dynamicURL, "_blank");
 })
 
-
-async function changeRoomVideoStatus(data) {
-    console.log(data)
-    fetch(`/api/rooms/call-status/active`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken, 
-      },
-      body: JSON.stringify(data),
-    })
-      .then(response => {
-        if (response.ok) {
-            // Request succeeded
-            console.log('Status 200: Success');
-          } else if (response.status === 404) {
-            // Room does not exist
-            console.log('Status 404: Room Not Found');
-          } else {
-            // Other error occurred
-            console.log(`Status ${response.status}: Error`);
-          }
-      })
-      .catch(error => {
-        console.error('An error occurred:', error);
-      });
-  }
 
   // Function to retrieve the CSRF token from cookies
 function getCookie(name) {
@@ -79,45 +48,6 @@ function getCookie(name) {
     if (parts.length === 2) return parts.pop().split(';').shift();
   }
   
- function changeVideoCallStatus(roomId){
-
-    fetch(`/api/rooms/call-status/${roomId}`, {
-        method: 'GET',
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json();          
-            } else if (response.status === 404) {
-              // Room does not exist
-              console.log('Status 404: VideoStatus Not Found');
-              videoCall.innerText = 'Group Call'
-            } else {
-              // Other error occurred
-              console.log(`Status ${response.status}: Error`);
-              videoCall.innerText = 'Group Call'
-            }
-        })
-        .then(data => {
-          //  let video= data.json();
-            // Process the extracted data
-            //console.log(data);
-            if(data.status == 'active'){
-                videoCall.innerText = 'Join Call'
-            }
-            if(data.status == 'inactive' || data.status == null){
-                videoCall.innerText = 'Group Call'
-            }
-
-            // Do something with the data
-          })
-        .catch(error => {
-          console.error('An error occurred:', error);
-          videoCall.innerText = 'Group Call'
-        });
-
- }
-
-
 
  // to scroll downward
 
@@ -161,8 +91,6 @@ function removeFile() {
   // Hide the preview div
   previewDiv.classList.remove('show');
 }
-
-
 function makeUrlsClickable() {
   const msgTextElements = document.getElementsByClassName('msg_text');
 
@@ -182,6 +110,10 @@ function makeUrlsClickable() {
 
 // Call the function to make URLs clickable
 makeUrlsClickable();
+
+
+
+
 
 
 

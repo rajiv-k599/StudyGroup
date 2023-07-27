@@ -31,6 +31,9 @@ urlpatterns = [
     path('join/<str:pk>',views.joinRoom, name="join-room"),
     path('leave/<str:pk>',views.leaveRoom, name="leave-room"),
     path('user/remove',views.removeUser, name="remove-user"),
+    path('open_file/<int:file_id>/', views.open_file, name='open-file'),
+    path('download_image/<int:image_id>/', views.download_image, name='download-image'),
+    path('notification/seen/<str:pk>', views.notificationSeen, name='seen-notification'),
 
     path('chat-room/<str:room>/', views.chatRoom, name="chatroom"),
     path('user_active/<str:user_id>/',

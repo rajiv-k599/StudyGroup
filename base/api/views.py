@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import ValidationError
 from django.http import JsonResponse
-from base.models import Room, VideoStatus, User
-from .serializers import RoomSerializer , VideoStatusSerializer
+from base.models import Room, User
+from .serializers import RoomSerializer , UsernameSerialization
 from base.constants import Status
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -29,6 +29,20 @@ def getRoom(request,pk):
     rooms = Room.objects.get(id=pk)
     serializer = RoomSerializer(rooms, many=False)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def getParticipants(request,pk):
+    try:
+        room = Room.objects.get(id=pk)
+    except Room.DoesNotExist:
+        return Response({'error': 'Room not found.'}, status=404)
+    
+    query = request.GET.get('query', '')
+    
+    Participants = room.participants.filter(username__icontains=query)[:5]
+    serializer = UsernameSerialization(Participants, many=True)
+    return Response(serializer.data)
+   
 
 # @api_view(['POST'])
 # def roomCallStatusActive(request):
@@ -65,85 +79,85 @@ def getRoom(request,pk):
 #             # room.save()
 #     return Response(status=200) 
 
-@api_view(['POST'])
-def roomCallStatusActive(request):
-    try:
-        room_id = request.data.get('roomId')
-        host_id = request.data.get('hostId')
-        if not room_id or not host_id:
-            raise ValidationError("roomId and hostId must be provided.")
+# @api_view(['POST'])
+# def roomCallStatusActive(request):
+#     try:
+#         room_id = request.data.get('roomId')
+#         host_id = request.data.get('hostId')
+#         if not room_id or not host_id:
+#             raise ValidationError("roomId and hostId must be provided.")
         
-        room = Room.objects.get(id=room_id)
-        host = User.objects.get(id=host_id)
+#         room = Room.objects.get(id=room_id)
+#         host = User.objects.get(id=host_id)
         
-        try:
-            video_status = VideoStatus.objects.get(room=room)
-            # VideoStatus object exists, update the fields
-            video_status.host = host.name
-            video_status.status = Status.ACTIVE
-            video_status.save()
-        except ObjectDoesNotExist:
-            video_status = VideoStatus.objects.create(room=room, host=host.name, status=Status.ACTIVE)
+#         try:
+#             video_status = VideoStatus.objects.get(room=room)
+#             # VideoStatus object exists, update the fields
+#             video_status.host = host.name
+#             video_status.status = Status.ACTIVE
+#             video_status.save()
+#         except ObjectDoesNotExist:
+#             video_status = VideoStatus.objects.create(room=room, host=host.name, status=Status.ACTIVE)
         
-        return Response(status=200)
+#         return Response(status=200)
     
-    except (ValidationError, ObjectDoesNotExist) as e:
-        return Response({'error': str(e)}, status=400)
+#     except (ValidationError, ObjectDoesNotExist) as e:
+#         return Response({'error': str(e)}, status=400)
     
-    except Exception as e:
-        # Handle any other exceptions or errors that may occur
-        # Log the error or return an appropriate response
-        print(f"Error occurred: {str(e)}")
-        return Response({'error': 'Internal Server Error'}, status=500)
+#     except Exception as e:
+#         # Handle any other exceptions or errors that may occur
+#         # Log the error or return an appropriate response
+#         print(f"Error occurred: {str(e)}")
+#         return Response({'error': 'Internal Server Error'}, status=500)
 
-@api_view(['POST'])
-def roomCallStatusInactive(request):
-    try:
+# @api_view(['POST'])
+# def roomCallStatusInactive(request):
+#     try:
        
-        room_id = request.data.get('roomId')
-        host_id = request.data.get('hostId')
+#         room_id = request.data.get('roomId')
+#         host_id = request.data.get('hostId')
        
-        if not room_id or not host_id:
-            raise ValidationError("roomId and hostId must be provided.")
+#         if not room_id or not host_id:
+#             raise ValidationError("roomId and hostId must be provided.")
         
-        room = Room.objects.get(id=room_id)
-        host = User.objects.get(id=host_id)
+#         room = Room.objects.get(id=room_id)
+#         host = User.objects.get(id=host_id)
         
-        try:
-            video_status = VideoStatus.objects.get(room=room)
-            # VideoStatus object exists, update the fields
-            if video_status.host == host.name:
-              video_status.host = host.name
-              video_status.status = Status.INACTIVE
-              video_status.ended = timezone.now()
-              video_status.save()
-            else:
-                raise ValidationError("Only can change status.")
+#         try:
+#             video_status = VideoStatus.objects.get(room=room)
+#             # VideoStatus object exists, update the fields
+#             if video_status.host == host.name:
+#               video_status.host = host.name
+#               video_status.status = Status.INACTIVE
+#               video_status.ended = timezone.now()
+#               video_status.save()
+#             else:
+#                 raise ValidationError("Only can change status.")
                   
-        except ObjectDoesNotExist:
-            return Response(status=404)
+#         except ObjectDoesNotExist:
+#             return Response(status=404)
         
-        return Response(status=200)
+#         return Response(status=200)
     
-    except (ValidationError, ObjectDoesNotExist) as e:
-        return Response({'error': str(e)}, status=400)
+#     except (ValidationError, ObjectDoesNotExist) as e:
+#         return Response({'error': str(e)}, status=400)
     
-    except Exception as e:
-        # Handle any other exceptions or errors that may occur
-        # Log the error or return an appropriate response
-        print(f"Error occurred: {str(e)}")
-        return Response({'error': 'Internal Server Error'}, status=500)
+#     except Exception as e:
+#         # Handle any other exceptions or errors that may occur
+#         # Log the error or return an appropriate response
+#         print(f"Error occurred: {str(e)}")
+#         return Response({'error': 'Internal Server Error'}, status=500)
 
-@api_view(['GET'])
-def getVideoStatus(request,pk):
-    try: 
-        room = get_object_or_404(Room, id=pk)
-        video = VideoStatus.objects.get(room=room)
-        if video is None:
-           return Response(status=404) 
-        serializer = VideoStatusSerializer(video, many=False)
-        return JsonResponse(serializer.data)
-    except VideoStatus.DoesNotExist:
-        return Response(status=404)
+# @api_view(['GET'])
+# def getVideoStatus(request,pk):
+#     try: 
+#         room = get_object_or_404(Room, id=pk)
+#         video = VideoStatus.objects.get(room=room)
+#         if video is None:
+#            return Response(status=404) 
+#         serializer = VideoStatusSerializer(video, many=False)
+#         return JsonResponse(serializer.data)
+#     except VideoStatus.DoesNotExist:
+#         return Response(status=404)
 
 

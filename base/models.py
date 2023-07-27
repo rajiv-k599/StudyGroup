@@ -66,6 +66,17 @@ class Media(models.Model):
         return self.media_name
 
 
+class Notification(models.Model):
+    sender = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='sent_notifications')
+    receiver = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='received_notifications')
+    type = models.CharField(max_length=100, null=True)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    seen = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+
 class VideoStatus(models.Model):
     room = models.OneToOneField(Room, on_delete=models.CASCADE)
     host = models.CharField(max_length=255, null=True)
@@ -75,10 +86,3 @@ class VideoStatus(models.Model):
 
     def __str__(self):
         return self.status
-
-
-class BaseRoomParticipants(models.Model):
-    id = models.AutoField(primary_key=True)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='room_participant')
