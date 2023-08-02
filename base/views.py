@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import User, BaseRoomParticipants, Topic
+from .models import Notification, User, BaseRoomParticipants, Topic
 from .models import User, BaseRoomParticipants, Topic
 from django.shortcuts import render
 from django.shortcuts import render, redirect
@@ -186,14 +186,24 @@ def room(request, pk):
 @login_required(login_url='login')
 def userProfile(request, pk):
     user = User.objects.get(id=pk)
-    rooms = user.room_set.all()
+    hosted_rooms = Room.objects.filter(host_id=pk)
+    joined_rooms = Room.objects.filter(
+        participants__id=pk).exclude(host_id=pk)
+
     room_messages = user.message_set.all()
     roompct = BaseRoomParticipants.objects.all()
     topics = Topic.objects.all()
-    context = {'user': user, 'rooms': rooms,
-               'topics': topics, 'room_messages': room_messages}
-    return render(request, 'base/profile.html', context)
 
+    context = {
+        'user': user,
+        'hosted_rooms': hosted_rooms,
+        'joined_rooms': joined_rooms,
+        'topics': topics,
+        'room_messages': room_messages,
+        'roompct': roompct
+    }
+
+    return render(request, 'base/profile.html', context)
 
 # create room
 
@@ -418,3 +428,12 @@ def download_image(request, image_id):
         response = HttpResponse(image_file.read(), content_type='image/jpeg')
         response['Content-Disposition'] = f'attachment; filename="{os.path.basename(image_path)}"'
         return response
+
+
+@login_required(login_url='login')
+def notificationSeen(request, pk):
+    notification = Notification.objects.get(id=pk)
+    notification.seen = True
+    notification.save()
+
+    return redirect('room', pk=notification.room.id)
