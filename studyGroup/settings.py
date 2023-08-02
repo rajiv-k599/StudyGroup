@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-      'daphne',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,12 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    
+
 
     'base.apps.BaseConfig',
     'corsheaders',
 ]
-#for reset password email
+# for reset password email
 # settings.py
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -54,20 +54,20 @@ EMAIL_HOST_USER = 'rude.manish69@gmail.com'
 EMAIL_HOST_PASSWORD = 'ljjzdafhzjzccjtn'
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-#reset pw email done
+# reset pw email done
 AUTH_USER_MODEL = 'base.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-   
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-     
+
 ]
 
 ROOT_URLCONF = 'studyGroup.urls'
@@ -96,7 +96,7 @@ ASGI_APPLICATION = 'studyGroup.asgi.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
-      },
+    },
 }
 
 
@@ -149,12 +149,12 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = '/media/'
 
-STATICFILES_DIRS =[
+STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
 
-MEDIA_ROOT = BASE_DIR/ 'static/media'
-#STATIC_ROOT = 
+MEDIA_ROOT = BASE_DIR / 'static/media'
+# STATIC_ROOT =
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
