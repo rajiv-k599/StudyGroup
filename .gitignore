@@ -7,3 +7,4 @@ base/migrations/__pycache__
 studyGroup/__pycache__
 db.sqlite3
 studyGroup/__pycache__/settings.cpython-311.pyc
+studyGroup/db.sqlite3
