@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import User, BaseRoomParticipants, Topic
+from .models import Notification, User, BaseRoomParticipants, Topic
 from .models import User, BaseRoomParticipants, Topic
 from django.shortcuts import render
 from django.shortcuts import render, redirect
@@ -7,7 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Room, Topic, Message, User, Media, Notification
+from .models import Room, Topic, Message, User, Media
 from django.urls import resolve
 from django.contrib.auth import authenticate, login, logout
 from .constants import NotificationType
@@ -129,7 +129,6 @@ def room(request, pk):
     room = Room.objects.get(id=pk)
     room_messages = room.message_set.all().order_by('created')
     participants = room.participants.all()
-    notifications = Notification.objects.filter(receiver=request.user, seen=False )
 
     if request.method == 'POST':
         file = request.FILES.get('file')
@@ -158,11 +157,11 @@ def room(request, pk):
     user_is_participant = request.user in participants
 
     # Retrieve messages with associated media
-    # messages_with_media = Message.objects.filter(
-    #     room=room, media__isnull=False)
+    messages_with_media = Message.objects.filter(
+        room=room, media__isnull=False)
 
     context = {'room': room, 'room_messages': room_messages,
-               'participants': participants, 'user_is_participant': user_is_participant, 'notifications': notifications}
+               'participants': participants, 'messages_with_media': messages_with_media}
     return render(request, 'base/room.html', context)
 
 # room messages:
@@ -190,7 +189,6 @@ def userProfile(request, pk):
     hosted_rooms = Room.objects.filter(host_id=pk)
     joined_rooms = Room.objects.filter(
         participants__id=pk).exclude(host_id=pk)
-    notifications = Notification.objects.filter(receiver=request.user, seen=False )
 
     room_messages = user.message_set.all()
     roompct = BaseRoomParticipants.objects.all()
@@ -202,12 +200,10 @@ def userProfile(request, pk):
         'joined_rooms': joined_rooms,
         'topics': topics,
         'room_messages': room_messages,
-        'roompct': roompct,
-        'notifications': notifications
+        'roompct': roompct
     }
 
     return render(request, 'base/profile.html', context)
-
 
 # create room
 
@@ -222,16 +218,16 @@ def createRoom(request):
         topic_name = request.POST.get('topic')
         topic, created = Topic.objects.get_or_create(name=topic_name)
 
-        Room.objects.create(
-            host=request.user,
-            topic=topic,
-            name=request.POST.get('name'),
-            description=request.POST.get('description')
-        )
-        messages.success(request, 'room created successfully')
-        return redirect('home')
+    Room.objects.create(
+        host=request.user,
+        topic=topic,
+        name=request.POST.get('name'),
+        description=request.POST.get('description')
+    )
+    messages.success(request, 'room created successfully')
+    return redirect('home')
 
-    context = {'form': form, 'topics': topics, 'notifications' : notifications}
+    context = {'form': form, 'topics': topics}
     return render(request, 'base/room_form.html', context)
 
 
@@ -309,13 +305,7 @@ def removeUser(request):
 
     return redirect('room', pk=room.id)
 
-@login_required(login_url='login')
-def notificationSeen(request, pk):
-    notification = Notification.objects.get(id=pk)
-    notification.seen = True
-    notification.save()
 
-    return redirect('room', pk=notification.room.id)
 # deleted message
 
 
@@ -438,3 +428,12 @@ def download_image(request, image_id):
         response = HttpResponse(image_file.read(), content_type='image/jpeg')
         response['Content-Disposition'] = f'attachment; filename="{os.path.basename(image_path)}"'
         return response
+
+
+@login_required(login_url='login')
+def notificationSeen(request, pk):
+    notification = Notification.objects.get(id=pk)
+    notification.seen = True
+    notification.save()
+
+    return redirect('room', pk=notification.room.id)
