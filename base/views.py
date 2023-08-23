@@ -377,8 +377,8 @@ def activityPage(request):
 
 
 def chatRoom(request, room):
-
-    context = {'roomId': room}
+    roomDetail = Room.objects.get(id=room)
+    context = {'roomId': room, 'room': roomDetail}
     return render(request, 'GroupChat/room.html', context)
 
 # to identify file type
