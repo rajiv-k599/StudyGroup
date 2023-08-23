@@ -1167,21 +1167,24 @@ a {
 .room__author:hover {
   text-decoration: underline;
 }
+.room__details {
+  font-size: small;
+}
 
 .room__topics {
-  padding: 0.5rem 1.5rem;
+  padding: 0.3rem 1rem;
   background: var(--color-dark-light);
   color: var(--color-light);
   display: inline-block;
-  font-size: 1.4rem;
+  font-size: 1rem;
   border-radius: 1.5rem;
-  margin: 1rem 0;
+  margin: 0.5rem 0;
 }
 
 .room__conversation {
-  margin-top: 1rem;
+  margin-top: 0rem;
   margin-bottom: 4rem;
-  height: 64%;
+  height: 75%;
 }
 
 .threads h3 {
@@ -1189,22 +1192,33 @@ a {
   font-weight: 500;
   color: var(--color-gray);
 }
-
 .threads {
   background: var(--color-bg);
   border-radius: 0.7rem;
   overflow-y: auto;
-  height: 100%;
-  margin-top: 28vh;
+  height: 85%;
+  margin-top: 20vh;
   padding: 0 2rem 4rem 2rem;
 }
 
 .thread {
-  border-left: 2px solid var(--color-dark);
+  border-left: 2px solid var(--color-success);
   padding-left: 1rem;
-  margin: 2rem 0;
-  padding: 2rem;
+  margin: 0.5rem 0;
+  padding: 0.1rem;
+  background-color: #232323;
+  border-radius: 10px;
+
 }
+
+.thread-right {
+  border-right: 2px solid var(--color-error);
+  background-color: #0a2510;
+  margin: 0.5rem 0;
+  padding: 0rem 0.5rem;
+  border-radius: 10px;
+}
+
 
 .thread__top {
   display: flex;
@@ -1212,11 +1226,36 @@ a {
   justify-content: space-between;
 }
 
+.thread__top-right {
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.thread__top-right svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  fill: var(--color-light);
+  cursor: pointer;
+}
+
 .thread__top svg {
   fill: var(--color-dark-light);
 }
 
+.thread__top-right svg {
+  fill: var(--color-dark-light);
+}
+
 .thread__author {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 1.4rem;
+}
+
+.thread__author-right {
   display: flex;
   align-items: center;
   gap: 1.5rem;
@@ -1230,21 +1269,149 @@ a {
 }
 
 .thread__details {
-  font-size: 1.4rem;
+
   margin-top: 0.5rem;
+  background-color: #4f5250;
+  border-radius: 10px;
+  color: white;
+  padding-left: 0.5rem;
 }
+
+.thread__details-right {
+  border-radius: 10px;
+  background-color: #1faf3f;
+  margin-top: 0.5rem;
+  text-align: right;
+  gap: 1rem;
+  color: white;
+  padding-right: 0.5rem;
+
+}
+
+.thread__details-right .pdf-bubble,
+.thread__details-right .msg_img,
+.thread__details-right .msg_video {
+  display: block; /* Display the divs as block elements */
+  margin-left: auto; /* Push the divs to the right */
+  /* Additional styling properties */
+}
+
+.msg_text{
+
+  word-wrap: break-word;
+
+}
+.pdf-bubble{
+
+  word-wrap: break-word;
+}
+.pdf-bubble a{
+
+  word-wrap: break-word;
+}
+
+.msg_img{
+  max-width: 100%;
+
+  height: auto;
+  width: 50%; /* Adjust as needed */
+  height: auto; /* Adjust as needed */
+}
+
+.msg_img img{
+max-height: 30rem;
+}
+
+.msg_video {
+
+  border-radius: 0.7rem;
+  overflow: hidden;
+  max-width: 100%;
+  height: auto;
+  width: 50%;
+  height: auto;
+
+}
+.msg_video video{
+  max-height: 30rem;
+}
+
+.msg_video video {
+  width: 100%;
+  height: auto;
+}
+
+
 
 .room__message {
   padding: 2rem;
-  position: absolute;
-  z-index: 111;
+
+  z-index: 999;
   bottom: 0;
   left: 0;
   right: 0;
-  background: transparent;
+
+  position: absolute;
 }
 
-.room__message > form > input {
+.send_message {
+  background-color: var(--color-dark-light);
+  color: var(--color-light);
+  border-radius: 0.7rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.text_message {
+  flex: 1;
+  width: 75%;
+}
+.message-input {
+  width: 100%;
+ border-radius: 0.7rem;
+
+ height: 4rem; 
+ max-height: 15rem;
+
+ line-height: 1;
+ font-size: larger;
+ padding: 1rem;
+}
+.submit-button {
+ margin-top: 0.3rem;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  color: white;
+  background-color: rgb(84, 105, 212);
+  box-shadow: rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 12%) 0px 1px 1px 0px, rgb(84 105 212) 0px 0px 0px 1px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(60 66 87 / 8%) 0px 2px 5px 0px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 8px;
+  display: inline-block;
+  min-height: 28px;
+  transition: background-color .24s,box-shadow .24s;
+  :hover {
+      box-shadow: rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 12%) 0px 1px 1px 0px, rgb(84 105 212) 0px 0px 0px 1px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(60 66 87 / 8%) 0px 3px 9px 0px, rgb(60 66 87 / 8%) 0px 2px 5px 0px;
+  }
+
+}
+.preview {
+  display: none;
+  background: var(--color-bg);
+  border-radius: 0.7rem;
+  padding: 1rem;
+}
+
+.preview.show {
+  display: block;
+}
+
+
+.room__message > form >  input {
   resize: none;
   background-color: var(--color-dark-light);
   color: var(--color-light);
@@ -1257,10 +1424,12 @@ a {
   padding: 1.2rem;
   font-size: 1.4rem;
   font-weight: 500;
+
   position: relative;
 }
 
-.room__message > form > input::placeholder {
+
+.room__message > form > div > input::placeholder {
   color: var(--color-light-gray);
 }
 
@@ -1269,17 +1438,22 @@ a {
   font-size: 1.3rem;
   text-transform: none;
 }
-
 .participants__top {
   justify-content: flex-start;
   gap: 0.5rem;
 }
 
 .participants__list {
+
   padding: 2rem;
   height: 82.5vh;
   overflow-y: scroll;
   padding-bottom: 0;
+}
+
+.participants__box{
+  display: flex;
+  justify-content: space-between;
 }
 
 .participant {
@@ -1288,7 +1462,6 @@ a {
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
-
 .participant p {
   color: var(--color-light-gray);
   line-height: 1.2;
@@ -1297,11 +1470,6 @@ a {
   display: flex;
   justify-content: space-between;
 }
-
-
 .participant span {
   display: block;
-  font-weight: 500;
-  color: var(--color-main);
-  font-weight: 1.4rem;
 }

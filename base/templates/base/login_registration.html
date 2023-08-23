@@ -52,9 +52,10 @@
             </form>
             <div class="auth__action">
               <a href="{% url 'reset-password' %}" class="btn btn--link">
-                Forgot your Password?</a>
+                <p style="color: white; text-decoration: underline;">Forgot your Password?
+                </p></a>
               <p>Haven't signed up yet?</p>
-              <a href="{% url 'register' %}" class="btn btn--link">Sign Up</a>
+              <a href="{% url 'register' %}" class="btn btn--link"><p style="color: white;text-decoration: underline;">Register</p></a>
             </div>
           </div>
         </div>
@@ -104,7 +105,7 @@
   
               <div class="auth__action">
                 <p>Already signed up?</p>
-                <a href="{% url 'login' %}" class="btn btn--link">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn btn--link"> <p style="color: white;text-decoration: underline;">Sign In</p></a>
               </div>
             </div>
           </div>
