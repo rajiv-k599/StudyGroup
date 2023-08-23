@@ -12,13 +12,13 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
    
-    <title>StudyBuddy - Find study partners around the world!</title>
+    <title>StudyGroup - Find study partners around the world!</title>
   </head>
 
   <body>
-    
+
     {% include 'navbar.html'%}
-    
+    <button id="mode-toggle-button">Toggle Dark/Light Mode</button>
     {% if messages %}
     <div id="toast-container" class="toast-container">
       {% for message in messages %}
@@ -35,6 +35,7 @@
           </div>
       {% endfor %}
   </div>
+
     {% endif %}
   
 
@@ -49,7 +50,6 @@
 
    
   </body>
-  
   <script src="{% static 'js/script.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/chatroom/lobby.js' %}" data-room-id="{{room.id}}"></script>
  

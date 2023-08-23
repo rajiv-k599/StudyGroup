@@ -41,31 +41,56 @@
 //     });
 //   });
 // }
+// script.js
 
+document.addEventListener("DOMContentLoaded", function () {
+  const htmlElement = document.querySelector("html");
+  const modeToggleButton = document.getElementById("mode-toggle-button");
 
-// Menu
-setTimeout(function() {
-  var toasts = document.querySelectorAll('.toast');
-  toasts.forEach(function(toast) {
-      dismissToast(toast.querySelector('.close'));
+  // Function to toggle between dark and light mode
+  function toggleDarkLightMode() {
+    if (htmlElement.classList.contains("dark-mode")) {
+      htmlElement.classList.remove("dark-mode");
+      htmlElement.classList.add("light-mode");
+      localStorage.setItem("theme", "light"); // Save user preference
+    } else {
+      htmlElement.classList.remove("light-mode");
+      htmlElement.classList.add("dark-mode");
+      localStorage.setItem("theme", "dark"); // Save user preference
+    }
+  }
+
+  // Apply initial theme based on user preference
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark") {
+    htmlElement.classList.add("dark-mode");
+  } else if (savedTheme === "light") {
+    htmlElement.classList.add("light-mode");
+  }
+
+  // Event listener for mode toggle button
+  modeToggleButton.addEventListener("click", toggleDarkLightMode);
+});
+setTimeout(function () {
+  var toasts = document.querySelectorAll(".toast");
+  toasts.forEach(function (toast) {
+    dismissToast(toast.querySelector(".close"));
   });
 }, 3000);
 
 // Function to dismiss a toast message
 function dismissToast(element) {
-  var toast = element.closest('.toast');
-  toast.classList.add('fade-out');
-  setTimeout(function() {
-      toast.style.display = 'none';
+  var toast = element.closest(".toast");
+  toast.classList.add("fade-out");
+  setTimeout(function () {
+    toast.style.display = "none";
   }, 500);
 }
 
 var a = document.querySelector(".dropdown-content");
 function myFunction() {
-a.classList.toggle("show"); 
+  a.classList.toggle("show");
 }
-
-
 
 const dropdownMenu = document.querySelector(".dropdown-menu");
 const dropdownButton = document.querySelector(".dropdown-button");
@@ -89,5 +114,5 @@ if (photoInput)
 
 // Scroll to Bottom
 const conversationThread = document.querySelector(".room__box");
-if (conversationThread) conversationThread.scrollTop = conversationThread.scrollHeight;
-
+if (conversationThread)
+  conversationThread.scrollTop = conversationThread.scrollHeight;
