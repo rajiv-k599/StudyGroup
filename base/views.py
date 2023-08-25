@@ -115,7 +115,7 @@ def home(request):
         receiver=request.user, seen=False)
     topics = Topic.objects.all()[0:4]
     room_count = rooms.count()
-    room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))[:6]
     print(notifications.count)
     context = {'rooms': rooms, 'topics': topics, 'room_count': room_count,
                'room_messages': room_messages, 'notifications': notifications}
@@ -192,7 +192,7 @@ def userProfile(request, pk):
         participants__id=pk).exclude(host_id=pk)
     notifications = Notification.objects.filter(receiver=request.user, seen=False )
 
-    room_messages = user.message_set.all()
+    room_messages = user.message_set.all()[:10]
     roompct = BaseRoomParticipants.objects.all()
     topics = Topic.objects.all()
 
@@ -234,6 +234,15 @@ def createRoom(request):
     context = {'form': form, 'topics': topics, 'notifications' : notifications}
     return render(request, 'base/room_form.html', context)
 
+@login_required(login_url='login')
+def usernameRedirect(request, room_id, username): 
+    try:
+      userMention = User.objects.get(username=username)
+    except:
+        messages.error(request, 'User does not exists')
+        return redirect('room', pk=room_id)
+
+    return redirect('user-profile', pk=userMention.id)
 
 @login_required(login_url='login')
 def updateRoom(request, pk):

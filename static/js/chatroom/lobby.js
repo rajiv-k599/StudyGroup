@@ -91,21 +91,28 @@ function removeFile() {
   // Hide the preview div
   previewDiv.classList.remove('show');
 }
+
 function makeUrlsClickable() {
   const msgTextElements = document.getElementsByClassName('msg_text');
 
   for (let i = 0; i < msgTextElements.length; i++) {
     const msgText = msgTextElements[i].innerHTML;
     const urlRegex = /(https?:\/\/[^\s]+)/g; // Regular expression to match URLs
+    const usernameRegex = /@(\w+)/g;
 
     // Replace URLs with clickable anchor tags
     const modifiedText = msgText.replace(urlRegex, function (url) {
       return '<a href="' + url + '">' + url + '</a>';
     });
 
+    const messageWithClickableUsernames = modifiedText.replace(usernameRegex, (match, username) => {
+      return `<a href="/user/profile/${roomid}/${username}" >@${username}</a>`;
+    });
+
     // Update the content of the div with clickable URLs
-    msgTextElements[i].innerHTML = modifiedText;
+    msgTextElements[i].innerHTML = messageWithClickableUsernames;
   }
+ 
 }
 
 // Call the function to make URLs clickable
