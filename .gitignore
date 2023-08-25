@@ -6,3 +6,5 @@ base/migrations/__pycache__
 
 
 studyGroup/__pycache__
+
+db.sqlite3

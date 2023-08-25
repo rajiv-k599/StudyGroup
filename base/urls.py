@@ -40,5 +40,6 @@ urlpatterns = [
     path('chat-room/<str:room>/', views.chatRoom, name="chatroom"),
     path('user_active/<str:user_id>/',
          views.check_remote_user_active, name='active-user'),
+    path('user/profile/<int:room_id>/<str:username>', views.usernameRedirect, name="username"),
 
 ]

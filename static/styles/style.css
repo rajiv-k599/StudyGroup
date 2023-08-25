@@ -852,6 +852,8 @@ a {
   border-radius: 5px;
   margin-top: 1rem;
   margin-left: -4.2rem;
+  word-wrap: break-word;
+  white-space: pre-line;
 }
 
 .roomListRoom__actions svg {
@@ -1056,6 +1058,46 @@ a {
   padding-right: 0.5rem;
 }
 
+.btn-leave{
+  
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  color: rgb(255, 255, 255);
+  background-color: rgb(175, 16, 16);
+  box-shadow: rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 12%) 0px 1px 1px 0px, rgb(84 105 212) 0px 0px 0px 1px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(60 66 87 / 8%) 0px 2px 5px 0px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 8px;
+  display: inline-block;
+  min-height: 28px;
+  transition: background-color .24s,box-shadow .24s;
+  :hover {
+      box-shadow: rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 12%) 0px 1px 1px 0px, rgb(84 105 212) 0px 0px 0px 1px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(60 66 87 / 8%) 0px 3px 9px 0px, rgb(60 66 87 / 8%) 0px 2px 5px 0px;
+  }
+}
+
+.btn-join{
+  
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  color: rgb(255, 255, 255);
+  background-color: rgb(16, 82, 175);
+  box-shadow: rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 12%) 0px 1px 1px 0px, rgb(84 105 212) 0px 0px 0px 1px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(60 66 87 / 8%) 0px 2px 5px 0px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 8px;
+  display: inline-block;
+  min-height: 28px;
+  transition: background-color .24s,box-shadow .24s;
+  :hover {
+      box-shadow: rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(0 0 0 / 12%) 0px 1px 1px 0px, rgb(84 105 212) 0px 0px 0px 1px, rgb(0 0 0 / 0%) 0px 0px 0px 0px, rgb(60 66 87 / 8%) 0px 3px 9px 0px, rgb(60 66 87 / 8%) 0px 2px 5px 0px;
+  }
+}
+
 @media screen and (max-width: 500px) {
   .room__header {
     top: 4.3rem;
@@ -1219,20 +1261,23 @@ a {
   margin-top: 0.5rem;
   background-color: #4f5250;
   border-radius: 10px;
+  margin-right: 5%;
   color: white;
   padding-left: 0.5rem;
 }
 
 .thread__details-right {
   border-radius: 10px;
-  background-color: #1faf3f;
+  background-color: #0f5323;
   margin-top: 0.5rem;
-  text-align: right;
+  margin-left: 5%;
   gap: 1rem;
   color: white;
   padding-right: 0.5rem;
+ 
   
 }
+
 
 .thread__details-right .pdf-bubble,
 .thread__details-right .msg_img,
@@ -1245,6 +1290,13 @@ a {
 .msg_text{
  
   word-wrap: break-word;
+  white-space: pre-line;
+  padding-left: 10px;
+}
+.msg_text_socket {
+  word-wrap: break-word;
+  white-space: pre-line;
+  padding-left: 10px;
 
 }
 .pdf-bubble{
@@ -1317,10 +1369,9 @@ max-height: 30rem;
 .message-input {
   width: 100%;
  border-radius: 0.7rem;
-
- height: 4rem; 
- max-height: 15rem;
-
+ resize: none;
+ overflow-y: auto;
+ max-height: 200px;
  line-height: 1;
  font-size: larger;
  padding: 1rem;

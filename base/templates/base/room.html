@@ -64,12 +64,12 @@
                {% if user_is_participant %}
                 <form action="{% url 'leave-room' room.id %}" method="post">
                   {% csrf_token %}
-                  <button type="submit">Leave</button>
+                  <button type="submit" class="btn-leave" title="Leave Room" >Leave <i class="fa fa-sign-out" aria-hidden="true"></i></button>
                 </form>
                 {% else %}
                   <form action="{% url 'join-room' room.id %}" method="post">
                       {% csrf_token %}
-                      <button type="submit">Join</button>
+                      <button type="submit" class="btn-join" title="Join Room" >Join <i class="fa fa-sign-in" aria-hidden="true"></i></button>
                   </form>
                {% endif %}
             {% endif %}
@@ -156,9 +156,9 @@
                    
                   </div>
                   <div class="thread__details-right">
-                    <div class="msg_text">
+                    <pre class="msg_text">
                     {{message.body}}
-                    </div>
+                    </pre>
                  
                     {% for media in message.media_set.all %}
                     {% if media %}
@@ -218,9 +218,9 @@
                     {% endif %}
                   </div>
                   <div class="thread__details">
-                    <div class="msg_text">
+                    <pre class="msg_text">
                       {{message.body}}
-                      </div>
+                      </pre>
                    {% for media in message.media_set.all %}
                    {% if media %}
                       {% if media.media_type == 'PDF' %}
@@ -266,7 +266,7 @@
               {% csrf_token %}
               <div class="send_message">
                 <div class="text_message">
-                  <textarea class="message-input" id="chat-message-input" name="body"  placeholder="Write your message here..." ></textarea>
+                  <textarea class="message-input" id="chat-message-input" name="body" rows="1" placeholder="Write your message here..." ></textarea>
                 </div>
                
                 <div class="file_upload">
@@ -313,7 +313,7 @@
                 {% csrf_token %}
                  <input type="hidden" name="room" value="{{room.id}}">
                  <input type="hidden" name="user" value="{{user.id}}">
-                <button type="submit">remove</button>
+                <button type="submit" class="btn-leave"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
               </form>
               {% endif %}
             {% endif %}
@@ -353,8 +353,12 @@ chatSocket.onmessage = function(e) {
         
     }
     checkActiveUser()
+    
    var timeAgo = timesince(message.created);
    const messageBox = document.querySelector('#message-box');
+
+ 
+   
 let html = '';
 
 if (username === message.user) {
@@ -378,24 +382,25 @@ if (username === message.user) {
             <span class="thread__date" style="font-size: xx-small; padding-top: 0.8rem;">${timeAgo} ago</span>
             <a href="/profile/${message.userId}" class="thread__authorInfo">
               <span>@${message.user}</span>
-              <div class="avatar avatar--small">
+              <div class="avatar avatar--small active">
                 <img src="/static/media/${message.avatar}" id="avatar-${message.user}"/>
               </div>    
             </a>
           </div>
         </div>
         <div class="thread__details-right">
-          <div class="msg_text">
-            ${message.message}
-          </div>
+          <pre class="msg_text_socket">
+            ${makeUrlsClickableInSocket(message.message)}
+          </pre>
           `;
+          
 } else if(message.message || message.message ==='') {
   html += `
     <div class="thread">
       <div class="thread__top">
         <div class="thread__author">
           <a href="/profile/${message.userId}" class="thread__authorInfo">
-            <div class="avatar avatar--small" id="avatar-${message.user}">
+            <div class="avatar avatar--small active" id="avatar-${message.user}">
               <img src="/static/media/${message.avatar}" style="height: 1.8rem; width:1.8rem;"/>
             </div>
             <span>@${message.user}</span>
@@ -406,10 +411,11 @@ if (username === message.user) {
        
       </div>
       <div class="thread__details">
-        <div class="msg_text">
-          ${message.message}
-        </div>
+        <pre class="msg_text_socket">
+          ${makeUrlsClickableInSocket(message.message)}
+        </pre>
       `;
+      
 }
 
 
@@ -447,6 +453,9 @@ if (username === message.user) {
 
 
 messageBox.innerHTML += html;
+
+makeUrlsClickableInSocket(message.message);
+
 }
 
 chatSocket.onclose = function(e) {
@@ -457,6 +466,7 @@ document.querySelector('#chat-message-submit').onclick = function(e) {
   e.preventDefault();
     var messageInputDom = document.querySelector('#chat-message-input');
     var messageUploadDom = document.querySelector('#upload');
+    const mentionSuggestions = document.getElementById('mentionSuggestions');
     var message = messageInputDom.value;
     var file = messageUploadDom.files[0];
     //var fileType = getFileType(file);
@@ -477,7 +487,26 @@ document.querySelector('#chat-message-submit').onclick = function(e) {
      messageInputDom.value = '';
      messageUploadDom.value = null;
      removeFile();
+     messageInputDom.style.height='auto';
+
+      //mention empty
+
+  
+      mentionSuggestions.innerHTML = "";
+      mentionSuggestions.classList.remove("show");
+
 };
+
+const textarea = document.getElementById('chat-message-input');
+
+
+
+textarea.addEventListener('input', () => {
+  textarea.style.height = 'auto'; // Reset textarea height
+  textarea.style.height = `${textarea.scrollHeight}px`; // Set textarea height to content height
+
+ 
+});
 
 function sendMessage(content) {
             const message = {
@@ -580,10 +609,12 @@ videoSocket.onmessage = function(e) {
   console.log(message)
   var video = document.getElementById('video_call_btn');
   if(message.active === true){
-    video.innerText = "join call"
+    video.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+      <path d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2V384c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"/></svg>join call`
   }
   if(message.active === false){
-    video.innerText = "create call"
+    video.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512">
+      <path d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2V384c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"/></svg> create Call`
   }
      
 } 
@@ -599,10 +630,17 @@ $(document).ready(function () {
             messageInput.on("input", function () {
                 const content = messageInput.val();
                 const lastAtSymbolIndex = content.lastIndexOf("@");
+               
 
                 if (lastAtSymbolIndex !== -1) {
                     const query = content.substring(lastAtSymbolIndex + 1);
-                    if (query.length > 0) {
+                    const spaceIndexAfterQuery = query.indexOf(" ");
+                    
+
+                if (spaceIndexAfterQuery !== -1) {
+                  mentionSuggestions.empty();
+                  mentionSuggestions.removeClass('show');
+                 } else if (query.length > 0) {
                         // Send AJAX request to fetch mention suggestions
                         $.ajax({
                             type: "GET",
@@ -634,9 +672,28 @@ $(document).ready(function () {
                 // You'll need to handle saving the mentions on the backend.
             });
         });
+
+
+function makeUrlsClickableInSocket(message) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const usernameRegex = /@(\w+)/g;
+
+  const messageWithClickableLinks = message.replace(urlRegex, (url) => {
+    return `<a href="${url}" target="_blank">${url}</a>`;
+  });
+
+  const messageWithClickableUsernames = messageWithClickableLinks.replace(usernameRegex, (match, username) => {
+    return `<a href="/user/profile/${roomName}/${username}" >@${username}</a>`;
+  });
+
+  return messageWithClickableUsernames;
+}
+
+ // Call the function to make URLs clickable
+
+        
     </script>
 
 
-</script>
 
 {% endblock %}
