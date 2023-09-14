@@ -181,6 +181,11 @@
                          <div class="msg_video">
                           <video src="{{ media.media_path.url }}" controls></video>
                           </div>
+                        {% elif media.media_type == 'Audio' %}    
+                        <p><audio controls>          
+                          <source src="{{ media.media_path.url }}" type="audio/mpeg">
+                          Your browser does not support the audio element.
+                        </audio></p>  
                        {% else %}
                        <div>
                          <p>Unsupported file type:  <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
@@ -241,7 +246,11 @@
                          <div class="msg_video">
                           <video src="{{ media.media_path.url }}" controls></video>
                           </div>
-                        
+                      {% elif media.media_type == 'Audio' %}    
+                          <p><audio controls>          
+                            <source src="{{ media.media_path.url }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                          </audio></p>
                       {% else %}
                       <div>
                         <p class="pdf-bubble">Unsupported file type:  <a href="{{ media.media_path.url }}" download="{{ media.media_name }}">{{ media.media_name }}</a></p>
@@ -442,7 +451,14 @@ if (username === message.user) {
           <video src="${message.file}" controls></video>
         </div>
       `;
-    } else {
+    } else if (message.fileType === 'Audio') {
+      html += `
+        <p><audio controls>          
+             <source src="${message.file}" type="audio/mpeg">
+             Your browser does not support the audio element.
+         </audio></p>
+      `;
+    }  else {
       html += `
         <div>
           <p>Unsupported file type: <a href="${message.file}" download="${message.filename}">${message.filename}</a></p>
@@ -555,6 +571,8 @@ function getFileType(file) {
         return 'Excel';
     } else if (fileType.startsWith('video')) {
         return 'Video';
+    } else if (fileType.startsWith('audio')) {
+        return 'Audio';
     } else {
         return 'Unknown';
     }

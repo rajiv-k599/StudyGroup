@@ -703,6 +703,36 @@ a {
   letter-spacing: 1px;
 }
 
+/* .colume
+{
+  float: left;
+  width: 50%; 
+}
+
+.roomList__title_profile:after
+{
+  content: "";
+  display: table;
+  clear: both;
+  width: 500px;
+} */
+.roomList__title_profile
+{
+ 
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+  width: 500px;  
+}
+
+.col_left{
+  border-right: #1faf3f ;
+  border-width: 1rem;
+}
+
+
+
 .roomList__header p {
   font-weight: 500;
   color: var(--color-dark-light);
@@ -853,7 +883,7 @@ a {
   margin-top: 1rem;
   margin-left: -4.2rem;
   word-wrap: break-word;
-  white-space: pre-line;
+  
 }
 
 .roomListRoom__actions svg {
