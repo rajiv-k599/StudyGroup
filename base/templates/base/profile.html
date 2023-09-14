@@ -31,18 +31,14 @@
         </div>
 
         <div class="roomList__header">
-          <div>
-            <h2>Study Rooms Hosted by {{user.username}}</a>
-            </h2>
+          <div class="roomList__title_profile">
+            <div class="column col_left" id="col_left" onclick="openRoomList('hosted')" style="text-decoration: underline;"><h2>Hosted by {{user.username}}({{hosted_rooms.count}})</h2></div> 
+            <div class="column col_right" id="col_right" onclick="openRoomList('joined')"><h2>Joined by {{user.username}}({{joined_rooms.count}})</h2></div>
           </div>
         </div>
-        <div> {% include 'base/hosted_room_list.html'%}</div>
-        <div class="roomList__header">
-          <div>
-            <h2>Study Rooms Joined by {{user.username}}</h2>
-          </div>
-        </div>
-            <div>            {% include 'base/joined_rooms_list.html' %} </div>
+        <div id="hosted" class="room__list"> {% include 'base/hosted_room_list.html'%}</div>
+       
+        <div id="joined" class="room__list" style="display:none"> {% include 'base/joined_rooms_list.html' %} </div>
       </div>
       <!-- Room List End -->
     
@@ -53,4 +49,31 @@
 
   </main>
    
+  {% endblock %}
+
+  {% block scripts %}
+
+
+  <script>
+function openRoomList(Name) {
+  var i;
+  var x = document.getElementsByClassName("room__list");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";  
+  }
+  document.getElementById(Name).style.display = "block";
+  var left = document.getElementById("col_left");
+  var right = document.getElementById("col_right");
+  if(Name ==='hosted'){
+    left.style.textDecoration = "underline";
+    right.style.textDecoration = "none";
+  }
+  if(Name ==='joined'){
+    left.style.textDecoration = "none";
+    right.style.textDecoration = "underline";
+  }   
+}
+</script>
+  
+
   {% endblock %}

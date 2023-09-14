@@ -376,7 +376,7 @@ def topicsPage(request):
 
 
 def activityPage(request):
-    room_messages = Message.objects.all()
+    room_messages = Message.objects.all()[:6]
     notifications = Notification.objects.filter(
         receiver=request.user, seen=False)
     context = {'room_messages': room_messages, 'notifications': notifications}
