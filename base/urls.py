@@ -16,6 +16,10 @@ urlpatterns = [
          auth_views.PasswordResetConfirmView.as_view(template_name='base/reset_password_confirm.html'), name='password_reset_confirm'),
     path('reset-password/complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='base/reset_password_complete.html'), name='password_reset_complete'),
+    path('profile/password/update', views.updatePassword, name="update-password"),
+    path('profile/password/change', views.changePassword, name="change-password"),
+
+
     # forgot password finished
 
     path('', views.home, name="home"),

@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
 from django.db.models import Q
 from .models import Room, Topic, Message, User, Media, Notification
 from django.urls import resolve
@@ -41,6 +42,38 @@ def forgot_password(request):
         return redirect('login')
 
     return render(request, 'base/forgot_password.html')
+
+@login_required(login_url='login')
+def updatePassword(request):
+    notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
+              
+           
+    context = {'notifications': notifications}
+    return render(request,'base/forgetPassword/forget_password.html', context)
+
+@login_required(login_url='login')
+def changePassword(request):
+  if request.method == 'POST': 
+        current = request.POST.get('current')
+        new = request.POST.get('new')
+        confirm = request.POST.get('confirm')
+        user = request.user
+        if current and new and confirm:
+            if user.check_password(current):
+                if new == confirm:
+                    user.set_password(new)
+                    user.save()
+                    # It's important to update the session to prevent logout
+                    update_session_auth_hash(request, user)
+                    messages.success(request, 'Password updated successfully')
+                else:
+                    messages.error(request, 'New and confirm password do not match')
+            else:
+                messages.error(request, 'Current password is incorrect')
+        else:
+            messages.error(request, 'Please fill in all fields')
+  return redirect('update-password')          
 # forgotpw completed
 
  # handle user login
@@ -75,7 +108,7 @@ def loginPage(request):
 
 # handle user logout
 
-
+@login_required(login_url='login')
 def logoutUser(request):
     logout(request)
     return redirect('login')
