@@ -12,6 +12,7 @@ from .models import Room, Topic, Message, User, Media, Notification
 from django.urls import resolve
 from django.contrib.auth import authenticate, login, logout
 from .constants import NotificationType
+from django.core.paginator import Paginator
 
 from .forms import RoomForm, UserForm, MyUserCreationForm
 import magic
@@ -149,8 +150,11 @@ def home(request):
     topics = Topic.objects.all()[0:4]
     room_count = rooms.count()
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))[:6]
-    print(notifications.count)
-    context = {'rooms': rooms, 'topics': topics, 'room_count': room_count,
+    paginator=Paginator(rooms,10)
+    page_number=request.GET.get('page')
+    ServiceDataFinal=paginator.get_page(page_number)
+   
+    context = {'rooms': ServiceDataFinal, 'topics': topics, 'room_count': room_count,
                'room_messages': room_messages, 'notifications': notifications}
     return render(request, 'base/home.html', context)
 
@@ -190,9 +194,8 @@ def room(request, pk):
 
     user_is_participant = request.user in participants
 
-    # Retrieve messages with associated media
-    # messages_with_media = Message.objects.filter(
-    #     room=room, media__isnull=False)
+
+
 
     context = {'room': room, 'room_messages': room_messages,
                'participants': participants, 'user_is_participant': user_is_participant, 'notifications': notifications}

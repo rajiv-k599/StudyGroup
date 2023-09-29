@@ -1518,3 +1518,22 @@ max-height: 30rem;
   color: var(--color-main);
   font-weight: 1.4rem;
 }
+/* pagination */
+.pagination {
+  display: inline-block;
+  
+}
+
+.pagination a {
+  color: cyan;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.pagination a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.pagination a:hover:not(.active) {background-color: #280b0b;}
