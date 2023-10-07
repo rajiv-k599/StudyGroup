@@ -21,7 +21,7 @@ urlpatterns = [
 
 
     # forgot password finished
-
+    path('', views.index),
     path('home/', views.home, name="home"),
     path('room/<str:pk>/', views.room, name="room"),
     path('profile/<str:pk>/', views.userProfile, name="user-profile"),

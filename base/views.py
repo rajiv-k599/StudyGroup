@@ -19,6 +19,9 @@ import magic
 import os
 
 
+def index(request):
+    return render(request, 'index/index.html')
+
 def forgot_password(request):
     if request.method == 'POST':
         email = request.POST['email']
