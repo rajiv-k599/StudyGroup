@@ -46,6 +46,26 @@
           </div>
 
           {% include 'base/feed_component.html'%}
+
+          <div class="pagination">
+            {% if rooms.has_previous %}
+            <a href="/home/?page=1">First</a>
+            <a href="/home/?page={{rooms.previous_page_number}}">&laquo;</a>
+            {% endif %}
+            {% for i in rooms.paginator.page_range %}
+              {% if rooms.number == i %}
+                  <a class="active" href="#" >{{ i }}</a>
+              {% else %}
+                  <a href="/home/?page={{ i }}">{{ i }}</a>
+              {% endif %}
+           {% endfor %}
+           
+            {% if rooms.has_next %}
+           
+            <a href="/home/?page={{rooms.next_page_number}}">&raquo;</a>
+            <a href="/home/?page={{rooms.paginator.num_pages}}">Last</a>
+            {% endif %}
+          </div>
         
         </div>
         <!-- Room List End -->

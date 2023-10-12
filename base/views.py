@@ -6,16 +6,21 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
 from django.db.models import Q
 from .models import Room, Topic, Message, User, Media, Notification
 from django.urls import resolve
 from django.contrib.auth import authenticate, login, logout
 from .constants import NotificationType
+from django.core.paginator import Paginator
 
 from .forms import RoomForm, UserForm, MyUserCreationForm
 import magic
 import os
 
+
+def index(request):
+    return render(request, 'index/index.html')
 
 def forgot_password(request):
     if request.method == 'POST':
@@ -41,6 +46,38 @@ def forgot_password(request):
         return redirect('login')
 
     return render(request, 'base/forgot_password.html')
+
+@login_required(login_url='login')
+def updatePassword(request):
+    notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
+              
+           
+    context = {'notifications': notifications}
+    return render(request,'base/forgetPassword/forget_password.html', context)
+
+@login_required(login_url='login')
+def changePassword(request):
+  if request.method == 'POST': 
+        current = request.POST.get('current')
+        new = request.POST.get('new')
+        confirm = request.POST.get('confirm')
+        user = request.user
+        if current and new and confirm:
+            if user.check_password(current):
+                if new == confirm:
+                    user.set_password(new)
+                    user.save()
+                    # It's important to update the session to prevent logout
+                    update_session_auth_hash(request, user)
+                    messages.success(request, 'Password updated successfully')
+                else:
+                    messages.error(request, 'New and confirm password do not match')
+            else:
+                messages.error(request, 'Current password is incorrect')
+        else:
+            messages.error(request, 'Please fill in all fields')
+  return redirect('update-password')          
 # forgotpw completed
 
  # handle user login
@@ -75,7 +112,7 @@ def loginPage(request):
 
 # handle user logout
 
-
+@login_required(login_url='login')
 def logoutUser(request):
     logout(request)
     return redirect('login')
@@ -116,8 +153,11 @@ def home(request):
     topics = Topic.objects.all()[0:4]
     room_count = rooms.count()
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))[:6]
-    print(notifications.count)
-    context = {'rooms': rooms, 'topics': topics, 'room_count': room_count,
+    paginator=Paginator(rooms,10)
+    page_number=request.GET.get('page')
+    ServiceDataFinal=paginator.get_page(page_number)
+   
+    context = {'rooms': ServiceDataFinal, 'topics': topics, 'room_count': room_count,
                'room_messages': room_messages, 'notifications': notifications}
     return render(request, 'base/home.html', context)
 
@@ -157,9 +197,8 @@ def room(request, pk):
 
     user_is_participant = request.user in participants
 
-    # Retrieve messages with associated media
-    # messages_with_media = Message.objects.filter(
-    #     room=room, media__isnull=False)
+
+
 
     context = {'room': room, 'room_messages': room_messages,
                'participants': participants, 'user_is_participant': user_is_participant, 'notifications': notifications}

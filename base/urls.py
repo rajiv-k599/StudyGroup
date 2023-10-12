@@ -16,9 +16,13 @@ urlpatterns = [
          auth_views.PasswordResetConfirmView.as_view(template_name='base/reset_password_confirm.html'), name='password_reset_confirm'),
     path('reset-password/complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='base/reset_password_complete.html'), name='password_reset_complete'),
-    # forgot password finished
+    path('profile/password/update', views.updatePassword, name="update-password"),
+    path('profile/password/change', views.changePassword, name="change-password"),
 
-    path('', views.home, name="home"),
+
+    # forgot password finished
+    path('', views.index),
+    path('home/', views.home, name="home"),
     path('room/<str:pk>/', views.room, name="room"),
     path('profile/<str:pk>/', views.userProfile, name="user-profile"),
     path('create-room/', views.createRoom, name="create-room"),
