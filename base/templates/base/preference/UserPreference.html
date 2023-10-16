@@ -1,0 +1,50 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+
+<div class="container">
+   
+        <div class="layout__box">
+            <div class="layout__boxHeader">
+              <div class="layout__boxTitle">
+           
+                <h3>Add Preference</h3>
+              </div>
+            </div>
+            <div class="layout__body">
+              <form class="form" {% if page == 'edit_preference' %} 
+                      action="{% url 'edit_preference' %}" 
+                   {% else %} 
+                      action="{% url 'add_preference' %}" 
+                   {% endif %} id="preference-form" method="POST">
+                {% csrf_token %}
+                <div class="form__group">
+                    <label for="room_topic">Topic</label>
+                    <select  id="myMulti" name="selected_topics" multiple required >
+                        {% for topic in topics %}
+                        <option value="{{topic.id}}" {% if topic in user_topics %}selected{% endif %}>{{topic.name}}</option>                     
+                        {%endfor%}                       
+                      </select> 
+                <div class="pref_action">
+                 
+                  <button class="btn btn--main" type="submit">Submit</button>
+                </div>
+              </form>
+            </div>
+          </div>
+     
+
+</div>
+
+
+{% endblock%}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag/dist/js/multi-select-tag.js"></script>
+
+<script>
+    new MultiSelectTag('myMulti')
+
+
+</script>
+{% endblock%}

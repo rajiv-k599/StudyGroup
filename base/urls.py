@@ -18,9 +18,14 @@ urlpatterns = [
         template_name='base/reset_password_complete.html'), name='password_reset_complete'),
     path('profile/password/update', views.updatePassword, name="update-password"),
     path('profile/password/change', views.changePassword, name="change-password"),
-
-
     # forgot password finished
+
+   # user preference
+   path('preference/',views.user_preference, name="preference"),
+   path('preference/user',views.user_preference_edit, name="user_preference"),
+   path('preference/add/',views.add_preference, name="add_preference"),
+   path('preference/edit/',views.edit_preference, name="edit_preference"),
+
     path('', views.index),
     path('home/', views.home, name="home"),
     path('room/<str:pk>/', views.room, name="room"),
