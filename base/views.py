@@ -7,12 +7,14 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
-from django.db.models import Q
-from .models import Room, Topic, Message, User, Media, Notification
+from django.db.models import Q, Count
+from .models import Room, Topic, Message, User, Media, Notification, UserPreference
 from django.urls import resolve
 from django.contrib.auth import authenticate, login, logout
 from .constants import NotificationType
 from django.core.paginator import Paginator
+
+from .algorithm import filter
 
 from .forms import RoomForm, UserForm, MyUserCreationForm
 import magic
@@ -21,6 +23,79 @@ import os
 
 def index(request):
     return render(request, 'index/index.html')
+
+def user_preference(request):
+   topics = Topic.objects.all()
+
+ 
+
+   context = {'page':'user_preference','topics': topics, }
+   return render(request, 'base/preference/UserPreference.html', context) 
+
+def user_preference_edit(request):
+   topics = Topic.objects.all()
+   notifications = Notification.objects.filter(
+        receiver=request.user, seen=False)
+   
+   user_preference = UserPreference.objects.get_or_create(user=request.user)
+   user_preference, _ = user_preference
+   user_topics = user_preference.selected_topics.all()
+
+   context = {'page':'edit_preference','topics': topics, 'user_topics': user_topics, 'notifications': notifications}
+
+   return render(request, 'base/preference/UserPreference.html', context) 
+
+def add_preference(request):
+    try:
+        if request.method == 'POST':
+            selected_topics = request.POST.getlist('selected_topics')
+            if len(selected_topics) < 5:
+                raise Exception("Select at least 5 topics")
+            
+            # Assuming the user is authenticated, get the user instance
+            user = request.user
+            # Create a UserProfile instance or get the existing one if it exists
+            user_preference, created = UserPreference.objects.get_or_create(user=user)
+
+            # Clear existing topics and add the selected ones
+            user_preference.selected_topics.clear()
+            for topic_id in selected_topics:
+            
+                topic = Topic.objects.get(pk=topic_id)
+                user_preference.selected_topics.add(topic)
+
+            # Data saved successfully
+            messages.success(request, 'success.')
+            return redirect('home')
+    except Exception as e:
+        # Handle the exception here, you can log the error, display a custom error message, etc.
+        messages.error(request,e)
+        return redirect('preference')  
+
+def edit_preference(request):
+    try:
+        if request.method == 'POST':
+            selected_topics = request.POST.getlist('selected_topics')
+            if len(selected_topics) < 5:
+                raise Exception("Select at least 5 topics")         
+            # Assuming the user is authenticated, get the user instance
+            user = request.user
+            # Create a UserProfile instance or get the existing one if it exists
+            user_preference, created = UserPreference.objects.get_or_create(user=user)
+
+            # Clear existing topics and add the selected ones
+            user_preference.selected_topics.clear()
+            for topic_id in selected_topics:     
+                topic = Topic.objects.get(pk=topic_id)
+                user_preference.selected_topics.add(topic)
+            # Data saved successfully
+            messages.success(request, 'success.')  
+            return redirect('update-user')       
+    except Exception as e:
+        # Handle the exception here, you can log the error, display a custom error message, etc.
+        messages.error(request,e)
+        return redirect('user_preference')  
+
 
 def forgot_password(request):
     if request.method == 'POST':
@@ -132,7 +207,7 @@ def registerUser(request):
             user.save()
             login(request, user)
             messages.success(request, 'User register successfully')
-            return redirect('home')
+            return redirect('preference')
         else:
             messages.error(request, 'An error occurred during registration')
 
@@ -144,14 +219,23 @@ def registerUser(request):
 @login_required(login_url='login')
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
-    rooms = Room.objects.filter(
+    all_rooms = Room.objects.filter(
         Q(topic__name__icontains=q) |
         Q(name__icontains=q)
-    )
+    ).annotate(
+    total_messages=Count('message'),  # Count total messages in each room
+    total_participants=Count('participants')  # Count total participants in each room
+)
+
+    user_preference = UserPreference.objects.get_or_create(user=request.user)
+    user_preference, _ = user_preference
+    user_topics = user_preference.selected_topics.all()
+
+    rooms = filter(all_rooms,user_topics)
     notifications = Notification.objects.filter(
         receiver=request.user, seen=False)
     topics = Topic.objects.all()[0:4]
-    room_count = rooms.count()
+    room_count = all_rooms.count()
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))[:6]
     paginator=Paginator(rooms,10)
     page_number=request.GET.get('page')
@@ -391,6 +475,12 @@ def updateUser(request):
     notifications = Notification.objects.filter(
         receiver=request.user, seen=False)
     form = UserForm(instance=user)
+    user_preference = UserPreference.objects.get_or_create(user=user)
+    if not user_preference:
+      user_preference = UserPreference.objects.create(user=request.user)
+    #user_topics = user_preference.selected_topics.all()
+    user_preference, _ = user_preference
+   
     if request.method == 'POST':
         form = UserForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
@@ -398,7 +488,7 @@ def updateUser(request):
             messages.success(request, 'user updated successfully')
             return redirect('user-profile', pk=user.id)
 
-    return render(request, 'base/update_user.html', {'form': form, 'notifications': notifications})
+    return render(request, 'base/update_user.html', {'form': form, 'notifications': notifications,'preferences':user_preference.selected_topics.all()})
 
 # To get topics
 
