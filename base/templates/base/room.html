@@ -126,7 +126,7 @@
               </div>
              
             </div>
-            <div class="room__conversation {% if not user_is_participant %}blur {% endif %}" >
+            <div class="room__conversation {% if not user_is_participant and not room.host == request.user %}blur {% endif %}" >
               <div class="threads scroll" id="message-box">
                 {% for message in room_messages %}
                  {% if request.user == message.user %}
@@ -270,7 +270,7 @@
              
             </div>
           </div>
-          <div class="room__message {% if not user_is_participant %}blur {% endif %}">
+          <div class="room__message {% if not user_is_participant and not room.host == request.user %}blur {% endif %}">
             <form action="" method="POST" enctype="multipart/form-data">
               {% csrf_token %}
               <div class="send_message">
