@@ -17,8 +17,9 @@ from django.core.paginator import Paginator
 from .algorithm import filter
 
 from .forms import RoomForm, UserForm, MyUserCreationForm
-import magic
+
 import os
+import mimetypes
 
 
 def index(request):
@@ -551,12 +552,16 @@ def check_remote_user_active(request, user_id):
 
 def open_file(request, file_id):
 
-    # Assuming you have a model called `File` that stores the files.
+     # Assuming you have a model called `Media` that stores the files.
     file_obj = get_object_or_404(Media, id=file_id)
     file_path = file_obj.media_path.path
 
-    # Use python-magic to detect the file type based on its content
-    file_type = magic.from_file(file_path, mime=True)
+    # Use mimetypes to detect the file type based on its extension
+    file_type, encoding = mimetypes.guess_type(file_path)
+
+    if file_type is None:
+        # If the file type cannot be determined, set it to a default value
+        file_type = 'application/octet-stream'
 
     # Open and serve the file based on its detected content type
     with open(file_path, 'rb') as file:
