@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     'rest_framework',
 
 
@@ -151,22 +152,23 @@ USE_TZ = True
 # MEDIA_URL = '/media/'
 
 # STATIC_ROOT = BASE_DIR / 'static/'
-# MEDIA_ROOT = BASE_DIR / 'static/media'
+# MEDIA_ROOT = BASE_DIR / 'media'
 
 # STATICFILES_DIRS = [
 #     BASE_DIR / 'static',
-#     BASE_DIR / 'static/media'
+#     BASE_DIR / 'media'
 # ]
-# Define the base URL to serve static files (CSS, JavaScript, etc.)
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
-# Define the absolute filesystem path to the directory that will hold static files.
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# Define the base URL to serve media files (user-uploaded files)
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 
-# Define the absolute filesystem path to the directory that will hold media files.
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATICFILES_DIRS =[
+    BASE_DIR / 'static'
+]
+
+MEDIA_ROOT = BASE_DIR/ 'media'
+# # Define the absolute filesystem path to the directory that will hold media files.
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 #MEDIA_ROOT = BASE_DIR / 'static/media'
 # STATIC_ROOT =
