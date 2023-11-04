@@ -347,7 +347,7 @@ var username = "{{ request.user.username }}"
 let activeUsers = [];
 console.log(activeUsers);
 var chatSocket = new WebSocket(
-            'wss://' + window.location.host +
+            'ws://' + window.location.host +
             '/ws/' + roomName + '/'+ username+'/');
 console.log(chatSocket)
 
@@ -618,7 +618,7 @@ function timesince(date){
 var userid = '{{user.id}}'
 
 var videoSocket = new WebSocket(
-  'wss://' + window.location.host +
+  'ws://' + window.location.host +
   '/ws/' + roomName + '/' + 'dummy' + '/vs/' + userid + '/');
   
 videoSocket.onmessage = function(e) {
