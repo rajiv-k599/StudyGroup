@@ -15,6 +15,7 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     'rest_framework',
 
 
@@ -68,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 
 ]
 
@@ -146,27 +149,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-# STATIC_URL = 'static/'
 
-# MEDIA_URL = '/media/'
+STATIC_URL = 'static/'
 
-# STATIC_ROOT = BASE_DIR / 'static/'
-# MEDIA_ROOT = BASE_DIR / 'static/media'
+MEDIA_URL = 'media/'
 
-# STATICFILES_DIRS = [
-#     BASE_DIR / 'static',
-#     BASE_DIR / 'static/media'
-# ]
-# Define the base URL to serve static files (CSS, JavaScript, etc.)
-STATIC_URL = '/static/'
 
-# Define the absolute filesystem path to the directory that will hold static files.
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# Define the base URL to serve media files (user-uploaded files)
-MEDIA_URL = '/media/'
+STATICFILES_DIRS =[
+    BASE_DIR / 'static'
+]
+STATIC_ROOT = BASE_DIR / "staticfiles" 
 
-# Define the absolute filesystem path to the directory that will hold media files.
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR/ 'media'
+
+
+# # Define the absolute filesystem path to the directory that will hold media files.
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 #MEDIA_ROOT = BASE_DIR / 'static/media'
 # STATIC_ROOT =
